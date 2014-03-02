@@ -1,0 +1,16 @@
+.DS_Store
+
+/Unity/Assembly-CSharp-Editor-firstpass-vs.csproj
+/Unity/Assembly-CSharp-Editor-firstpass.csproj
+/Unity/Assembly-CSharp-Editor-vs.csproj
+/Unity/Assembly-CSharp-Editor.csproj
+/Unity/Assembly-CSharp-firstpass-vs.csproj
+/Unity/Assembly-CSharp-firstpass.csproj
+/Unity/Assembly-CSharp-vs.csproj
+/Unity/Assembly-CSharp.csproj
+
+/Unity/Library/
+
+/Unity/Unity-csharp.sln
+/Unity/Unity.sln
+/Unity/Unity.userprefs
