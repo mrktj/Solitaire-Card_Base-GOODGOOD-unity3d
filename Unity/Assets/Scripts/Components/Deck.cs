@@ -116,6 +116,7 @@ public class Deck : MonoBehaviour
 		return card;
 	}
 
+#if UNITY_EDITOR
 	public Sprite CardBack
 	{
 		get
@@ -125,4 +126,5 @@ public class Deck : MonoBehaviour
 			return cardPrefab.GetComponent<Card>().CardBack;
 		}
 	}
+#endif
 }

@@ -14,35 +14,23 @@ public class TriPeaksGame : MonoBehaviour
 		if (Application.isPlaying)
 #endif
 		{
-			StartCoroutine(DealCards());
+			DealInitialBoard();
 		}
 	}
 
-	IEnumerator DealCards()
+	void DealInitialBoard()
 	{
 		for (int i = 0, iMax = board.Size; i < iMax && deck.Size > 0; i++)
 		{
-			Vector3 dealPosition = deck.transform.InverseTransformPoint(board[i].transform.position);
-			Card card = deck.DealCard();
-			card.MoveToPosition(dealPosition);
-			board[i].PlaceCard(card);
+			DealCardToSlot(board[i]);
 		}
 
-		yield return StartCoroutine(UpdateBoard());
+		UpdateBoard();
 
-		for (int i = 0, iMax = deck.Size; i < iMax; i++)
-		{
-			Vector3 cardPosition = deck[i].transform.localPosition;
-			cardPosition.x -= (float)i * 405f / ((float)deck.Size - 1f);
-			deck[i].transform.localPosition = cardPosition;
-		}
-
-		yield return StartCoroutine(RevealNextCard());
-
-		yield break;
+		RevealNextCard();
 	}
 
-	IEnumerator UpdateBoard()
+	void UpdateBoard()
 	{
 		for (int i = 0, iMax = board.Size; i < iMax; i++)
 		{
@@ -62,57 +50,70 @@ public class TriPeaksGame : MonoBehaviour
 				board[i].Card.Revealed = reveal;
 			}
 		}
-
-		yield break;
 	}
 
-	IEnumerator RevealNextCard()
+	/// <summary>
+	/// Moves card from deck to slot.
+	/// </summary>
+	void DealCardToSlot(Slot slot)
 	{
-		Vector3 wastePosition = deck.transform.InverseTransformPoint(waste.transform.position);
 		Card card = deck.DealCard();
-		card.MoveToPosition(wastePosition);
-		waste.AddCard(card);
-		card.Revealed = true;
-
-		yield break;
+		slot.PlaceCard(card);
+		card.MoveToPosition(Vector3.zero);
 	}
 
-	IEnumerator RemoveCardFromSlot(Slot slot)
+	/// <summary>
+	/// Moves card from deck to waste.
+	/// </summary>
+	void RevealNextCard()
 	{
-		Vector3 wastePosition = slot.transform.InverseTransformPoint(waste.transform.position);
-		Card card = slot.TakeCard();
-		card.MoveToPosition(wastePosition);
+		Card card = deck.DealCard();
 		waste.AddCard(card);
+		card.MoveToPosition(Vector3.zero);
+		card.Revealed = true;
+	}
 
-		yield return StartCoroutine(UpdateBoard());
-
-		yield break;
+	/// <summary>
+	/// Moves card from slot to waste.
+	/// </summary>
+	void RemoveCardFromSlot(Slot slot)
+	{
+		Card card = slot.TakeCard();
+		waste.AddCard(card);
+		card.MoveToPosition(Vector3.zero);
+		UpdateBoard();
 	}
 
 	void OnRecognizeTap(TapGesture gesture)
 	{
+		// Didn't tap on anything.
 		if (gesture.Selection == null) return;
 
+		// Didn't tap on a card.
 		Card card = gesture.Selection.GetComponent<Card>();
 		if (card == null) return;
 
+		// Tapped on a deck card.
 		if (card.transform.parent.GetComponent<Deck>() == deck)
 		{
-			StartCoroutine(RevealNextCard());
+			RevealNextCard();
 			return;
 		}
 
+		// Tapped on a slot card.
 		Slot slot = card.transform.parent.GetComponent<Slot>();
 		if (slot != null)
 		{
+			// Didn't tap on a revealed slot card.
 			if (!card.Revealed) return;
 
 			int numRanks = System.Enum.GetNames(typeof(CardRank)).Length;
 
+			// Tapped on a valid slot card (i.e. +1/-1).
 			if ((int)card.Rank == (int)(waste[0].Rank + numRanks - 1) % numRanks ||
 			    (int)card.Rank == (int)(waste[0].Rank + 1) % numRanks)
 			{
-				StartCoroutine(RemoveCardFromSlot(slot));
+				RemoveCardFromSlot(slot);
 				return;
 			}
 		}
