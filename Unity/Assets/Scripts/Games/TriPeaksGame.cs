@@ -8,18 +8,35 @@ public class TriPeaksGame : MonoBehaviour
 	[SerializeField] Board board;
 	[SerializeField] Waste waste;
 
+#if UNITY_EDITOR
+	public bool restartGame = false;
+#endif
+
 	void Start()
 	{
 #if UNITY_EDITOR
 		if (Application.isPlaying)
 #endif
 		{
-			DealInitialBoard();
+			DealBoard();
 		}
 	}
 
-	void DealInitialBoard()
+#if UNITY_EDITOR
+	void Update()
 	{
+		if (restartGame)
+		{
+			restartGame = false;
+			RestartGame();
+		}
+	}
+#endif
+
+	void DealBoard()
+	{
+		deck.Shuffle();
+
 		for (int i = 0, iMax = board.Size; i < iMax && deck.Size > 0; i++)
 		{
 			DealCardToSlot(board[i]);
@@ -29,9 +46,25 @@ public class TriPeaksGame : MonoBehaviour
 
 		RevealNextCard();
 	}
+	
+	void RestartGame()
+	{
+		for (int i = 0, iMax = board.Size; i < iMax; i++)
+		{
+			ReturnCardFromSlot(board[i]);
+		}
+		
+		while (waste.Size > 0)
+		{
+			ReturnCardFromWaste();
+		}
+		
+		DealBoard();
+	}
 
 	void UpdateBoard()
 	{
+		// Determine which slots should reveal their cards.
 		for (int i = 0, iMax = board.Size; i < iMax; i++)
 		{
 			if (board[i].Card != null)
@@ -79,6 +112,32 @@ public class TriPeaksGame : MonoBehaviour
 		Card card = slot.TakeCard();
 		waste.AddCard(card);
 		UpdateBoard();
+	}
+
+	/// <summary>
+	/// Moves card from slot to deck.
+	/// </summary>
+	void ReturnCardFromSlot(Slot slot)
+	{
+		Card card = slot.TakeCard();
+		if (card != null)
+		{
+			deck.AddCard(card);
+			card.Revealed = false;
+		}
+	}
+
+	/// <summary>
+	/// Moves card from waste to deck.
+	/// </summary>
+	void ReturnCardFromWaste()
+	{
+		Card card = waste.TakeTopCard();
+		if (card != null)
+		{
+			deck.AddCard(card);
+			card.Revealed = false;
+		}
 	}
 
 	void OnRecognizeTap(TapGesture gesture)

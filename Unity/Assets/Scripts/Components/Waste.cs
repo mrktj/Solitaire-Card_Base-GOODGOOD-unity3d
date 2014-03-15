@@ -40,4 +40,21 @@ public class Waste : MonoBehaviour
 		card.transform.parent = transform;
 		card.MoveToPosition(Vector3.zero);
 	}
+
+	public Card TakeTopCard()
+	{
+		if (cards.Count == 0) return null;
+
+		Card card = cards[0];
+		cards.RemoveAt(0);
+
+		foreach (Card cardBelow in cards)
+		{
+			Vector3 cardPosition = cardBelow.transform.localPosition;
+			cardPosition.z -= 1f;
+			cardBelow.transform.localPosition = cardPosition;
+		}
+
+		return card;
+	}
 }

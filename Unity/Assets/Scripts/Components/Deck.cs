@@ -18,7 +18,6 @@ public class Deck : MonoBehaviour
 #endif
 		{
 			Initialize();
-			Shuffle();
 		}
 	}
 
@@ -67,7 +66,7 @@ public class Deck : MonoBehaviour
 		}
 	}
 
-	void Shuffle()
+	public void Shuffle()
 	{
 		for (int i = 0, iMax = cards.Count; i < iMax; i++)
 		{
@@ -114,6 +113,14 @@ public class Deck : MonoBehaviour
 		Card card = cards[0];
 		cards.RemoveAt(0);
 		return card;
+	}
+
+	public void AddCard(Card card)
+	{
+		cards.Add(card);
+		card.transform.parent = transform;
+		card.MoveToPosition(Vector3.zero);
+		SetCardDepth(card, cards.Count - 1);
 	}
 
 #if UNITY_EDITOR
