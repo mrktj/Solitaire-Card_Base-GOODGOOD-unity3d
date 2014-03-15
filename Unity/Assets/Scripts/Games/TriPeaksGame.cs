@@ -59,7 +59,6 @@ public class TriPeaksGame : MonoBehaviour
 	{
 		Card card = deck.DealCard();
 		slot.PlaceCard(card);
-		card.MoveToPosition(Vector3.zero);
 	}
 
 	/// <summary>
@@ -69,7 +68,6 @@ public class TriPeaksGame : MonoBehaviour
 	{
 		Card card = deck.DealCard();
 		waste.AddCard(card);
-		card.MoveToPosition(Vector3.zero);
 		card.Revealed = true;
 	}
 
@@ -80,7 +78,6 @@ public class TriPeaksGame : MonoBehaviour
 	{
 		Card card = slot.TakeCard();
 		waste.AddCard(card);
-		card.MoveToPosition(Vector3.zero);
 		UpdateBoard();
 	}
 

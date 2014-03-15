@@ -17,6 +17,7 @@ public class Slot : MonoBehaviour
 	{
 		this.card = card;
 		card.transform.parent = transform;
+		card.MoveToPosition(Vector3.zero);
 	}
 
 	public Card TakeCard()

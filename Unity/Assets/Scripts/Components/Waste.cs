@@ -38,5 +38,6 @@ public class Waste : MonoBehaviour
 
 		cards.Insert(0, card);
 		card.transform.parent = transform;
+		card.MoveToPosition(Vector3.zero);
 	}
 }
