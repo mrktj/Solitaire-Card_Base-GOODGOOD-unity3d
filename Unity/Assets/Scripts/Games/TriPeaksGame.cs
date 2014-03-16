@@ -9,6 +9,8 @@ public class TriPeaksGame : MonoBehaviour
 	[SerializeField] Board board;
 	[SerializeField] Waste waste;
 
+	public UILabel timeLabel;
+
 #if UNITY_EDITOR
 	public bool paused = false;
 	public bool restartGame = false;
@@ -55,6 +57,7 @@ public class TriPeaksGame : MonoBehaviour
 		if (!paused)
 		{
 			timeRemaining -= Time.deltaTime;
+			timeLabel.text = Mathf.Floor(timeRemaining).ToString();
 
 			if (Mathf.Floor(timeRemaining) <= 0)
 			{

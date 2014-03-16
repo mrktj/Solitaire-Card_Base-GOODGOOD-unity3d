@@ -5619,7 +5619,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 100008}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -270, y: -240, z: 0}
+  m_LocalPosition: {x: 180, y: -240, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 400686}
@@ -9071,7 +9071,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 100582}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 270, y: -240, z: 0}
+  m_LocalPosition: {x: 360, y: -240, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 400000}
@@ -10054,10 +10054,14 @@ MonoBehaviour:
   deck: {fileID: 11400008}
   board: {fileID: 11400164}
   waste: {fileID: 11400166}
+  timeLabel: {fileID: 0}
+  paused: 0
   restartGame: 0
   undoLastMove: 0
   shuffleBoard: 0
-  addWildCard: 0
+  generateWildCard: 0
+  addExtraCards: 0
+  addExtraTime: 0
 --- !u!114 &11400002
 MonoBehaviour:
   m_ObjectHideFlags: 1
