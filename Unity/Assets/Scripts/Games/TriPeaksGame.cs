@@ -72,23 +72,7 @@ public class TriPeaksGame : MonoBehaviour
 		}
 
 		UpdateBoard();
-
 		RevealNextCard();
-	}
-	
-	void RestartGame()
-	{
-		for (int i = 0, iMax = board.Size; i < iMax; i++)
-		{
-			ReturnCardFromSlot(board[i]);
-		}
-		
-		while (waste.Size > 0)
-		{
-			ReturnCardFromWaste();
-		}
-		
-		DealBoard();
 	}
 
 	void UpdateBoard()
@@ -114,6 +98,21 @@ public class TriPeaksGame : MonoBehaviour
 		}
 	}
 	
+	void RestartGame()
+	{
+		for (int i = 0, iMax = board.Size; i < iMax; i++)
+		{
+			ReturnCardFromSlot(board[i]);
+		}
+		
+		while (waste.Size > 0)
+		{
+			ReturnCardFromWaste();
+		}
+		
+		DealBoard();
+	}
+	
 	void AddToUndoHistory(Action.Move move, Slot slot = null)
 	{
 		Action action = new Action();
@@ -136,6 +135,7 @@ public class TriPeaksGame : MonoBehaviour
 		else
 		{
 			ReturnCardToSlot(action.slot);
+			UpdateBoard();
 		}
 	}
 
@@ -188,7 +188,6 @@ public class TriPeaksGame : MonoBehaviour
 	{
 		Card card = slot.TakeCard();
 		waste.AddCard(card);
-		UpdateBoard();
 	}
 
 	/// <summary>
@@ -226,7 +225,6 @@ public class TriPeaksGame : MonoBehaviour
 		if (card != null)
 		{
 			slot.PlaceCard(card);
-			UpdateBoard();
 		}
 	}
 
@@ -261,6 +259,7 @@ public class TriPeaksGame : MonoBehaviour
 			    (int)card.Rank == (int)(waste[0].Rank + 1) % numRanks)
 			{
 				RemoveCardFromSlot(slot);
+				UpdateBoard();
 				AddToUndoHistory(Action.Move.RemoveCardFromSlot, slot);
 				return;
 			}
