@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 [ExecuteInEditMode]
 public class TriPeaksGame : MonoBehaviour
@@ -10,7 +11,22 @@ public class TriPeaksGame : MonoBehaviour
 
 #if UNITY_EDITOR
 	public bool restartGame = false;
+	public bool undoLastMove = false;
 #endif
+
+	class Action
+	{
+		public enum Move
+		{
+			RevealNextCard,
+			RemoveCardFromSlot
+		}
+
+		public Move move;
+		public Slot slot;
+	}
+
+	List<Action> undoHistory = new List<Action>();
 
 	void Start()
 	{
@@ -29,6 +45,12 @@ public class TriPeaksGame : MonoBehaviour
 		{
 			restartGame = false;
 			RestartGame();
+		}
+
+		if (undoLastMove)
+		{
+			undoLastMove = false;
+			UndoLastMove();
 		}
 	}
 #endif
@@ -84,6 +106,31 @@ public class TriPeaksGame : MonoBehaviour
 			}
 		}
 	}
+	
+	void AddToUndoHistory(Action.Move move, Slot slot = null)
+	{
+		Action action = new Action();
+		action.move = move;
+		action.slot = slot;
+		undoHistory.Add(action);
+	}
+
+	void UndoLastMove()
+	{
+		if (undoHistory.Count == 0) return;
+
+		Action action = undoHistory[undoHistory.Count - 1];
+		undoHistory.RemoveAt(undoHistory.Count - 1);
+
+		if (action.move == Action.Move.RevealNextCard)
+		{
+			ReturnCardFromWaste();
+		}
+		else
+		{
+			ReturnCardToSlot(action.slot);
+		}
+	}
 
 	/// <summary>
 	/// Moves card from deck to slot.
@@ -122,7 +169,7 @@ public class TriPeaksGame : MonoBehaviour
 		Card card = slot.TakeCard();
 		if (card != null)
 		{
-			deck.AddCard(card);
+			deck.AddCardOnTop(card);
 			card.Revealed = false;
 		}
 	}
@@ -135,8 +182,21 @@ public class TriPeaksGame : MonoBehaviour
 		Card card = waste.TakeTopCard();
 		if (card != null)
 		{
-			deck.AddCard(card);
+			deck.AddCardOnTop(card);
 			card.Revealed = false;
+		}
+	}
+
+	/// <summary>
+	/// Moves card from waste to slot.
+	/// </summary>
+	void ReturnCardToSlot(Slot slot)
+	{
+		Card card = waste.TakeTopCard();
+		if (card != null)
+		{
+			slot.PlaceCard(card);
+			UpdateBoard();
 		}
 	}
 
@@ -153,6 +213,7 @@ public class TriPeaksGame : MonoBehaviour
 		if (card.transform.parent.GetComponent<Deck>() == deck)
 		{
 			RevealNextCard();
+			AddToUndoHistory(Action.Move.RevealNextCard);
 			return;
 		}
 
@@ -170,6 +231,7 @@ public class TriPeaksGame : MonoBehaviour
 			    (int)card.Rank == (int)(waste[0].Rank + 1) % numRanks)
 			{
 				RemoveCardFromSlot(slot);
+				AddToUndoHistory(Action.Move.RemoveCardFromSlot, slot);
 				return;
 			}
 		}

@@ -92,6 +92,14 @@ public class Deck : MonoBehaviour
 		card.transform.localPosition = cardPosition;
 	}
 
+	void SetAllCardsDepth()
+	{
+		for (int i = 0, iMax = cards.Count; i < iMax; i++)
+		{
+			SetCardDepth(cards[i], i);
+		}
+	}
+
 	public Card this[int index]
 	{
 		get
@@ -115,12 +123,12 @@ public class Deck : MonoBehaviour
 		return card;
 	}
 
-	public void AddCard(Card card)
+	public void AddCardOnTop(Card card)
 	{
-		cards.Add(card);
+		cards.Insert(0, card);
 		card.transform.parent = transform;
 		card.MoveToPosition(Vector3.zero);
-		SetCardDepth(card, cards.Count - 1);
+		SetAllCardsDepth();
 	}
 
 #if UNITY_EDITOR
