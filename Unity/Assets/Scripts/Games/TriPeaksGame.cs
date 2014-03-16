@@ -13,8 +13,11 @@ public class TriPeaksGame : MonoBehaviour
 	public bool restartGame = false;
 	public bool undoLastMove = false;
 	public bool shuffleBoard = false;
-	public bool addWildCard = false;
+	public bool generateWildCard = false;
+	public bool addExtraCards = false;
 #endif
+
+	const int EXTRA_CARDS_COUNT = 5;
 
 	class Action
 	{
@@ -61,10 +64,16 @@ public class TriPeaksGame : MonoBehaviour
 			ShuffleBoard();
 		}
 
-		if (addWildCard)
+		if (generateWildCard)
 		{
-			addWildCard = false;
-			AddWildCard();
+			generateWildCard = false;
+			GenerateWildCard();
+		}
+
+		if (addExtraCards)
+		{
+			addExtraCards = false;
+			AddExtraCards();
 		}
 	}
 #endif
@@ -175,12 +184,23 @@ public class TriPeaksGame : MonoBehaviour
 		UpdateBoard();
 	}
 
-	void AddWildCard()
+	void GenerateWildCard()
 	{
 		Card card = deck.CreateNewCard();
 		card.Type = CardType.Wild;
 		waste.AddCard(card);
 		card.Revealed = true;
+	}
+
+	void AddExtraCards()
+	{
+		for (int i = 0; i < EXTRA_CARDS_COUNT; i++)
+		{
+			Card card = deck.CreateNewCard();
+			card.Rank = (CardRank)Random.Range(0, System.Enum.GetNames(typeof(CardRank)).Length);
+			card.Suit = (CardSuit)Random.Range(0, System.Enum.GetNames(typeof(CardSuit)).Length);
+			deck.AddCardOnTop(card);
+		}
 	}
 
 	/// <summary>
