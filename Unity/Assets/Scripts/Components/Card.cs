@@ -26,6 +26,12 @@ public enum CardSuit
 	Diamonds
 }
 
+public enum CardType
+{
+	Normal,
+	Wild
+}
+
 [ExecuteInEditMode]
 public class Card : MonoBehaviour
 {
@@ -33,6 +39,7 @@ public class Card : MonoBehaviour
 	[SerializeField] Sprite back;
 	[SerializeField] Sprite[] ranks;
 	[SerializeField] Sprite[] suits;
+	[SerializeField] Sprite wild;
 
 	[SerializeField] Color blackSuitColor;
 	[SerializeField] Color redSuitColor;
@@ -42,10 +49,12 @@ public class Card : MonoBehaviour
 	[SerializeField] bool colorizeRankSprites;
 	[SerializeField] SpriteRenderer[] suitSprites;
 	[SerializeField] bool colorizeSuitSprites;
+	[SerializeField] SpriteRenderer[] specialSprites;
 	
 	[SerializeField] bool revealed;
 	[SerializeField] CardRank rank;
 	[SerializeField] CardSuit suit;
+	[SerializeField] CardType type;
 
 	void Awake()
 	{
@@ -79,16 +88,23 @@ public class Card : MonoBehaviour
 				continue;
 			}
 
-			rankSprite.gameObject.SetActive(true);
-			rankSprite.sprite = ranks[(int)rank];
+			if (type == CardType.Normal)
+			{
+				rankSprite.gameObject.SetActive(true);
+				rankSprite.sprite = ranks[(int)rank];
 
-			if (colorizeRankSprites)
-			{
-				rankSprite.color = suit == CardSuit.Spades || suit == CardSuit.Clubs ? blackSuitColor : redSuitColor;
+				if (colorizeRankSprites)
+				{
+					rankSprite.color = suit == CardSuit.Spades || suit == CardSuit.Clubs ? blackSuitColor : redSuitColor;
+				}
+				else
+				{
+					rankSprite.color = Color.white;
+				}
 			}
-			else
+			else if (type == CardType.Wild)
 			{
-				rankSprite.color = Color.white;
+				rankSprite.gameObject.SetActive(false);
 			}
 		}
 
@@ -100,16 +116,42 @@ public class Card : MonoBehaviour
 				continue;
 			}
 
-			suitSprite.gameObject.SetActive(true);
-			suitSprite.sprite = suits[(int)suit];
+			if (type == CardType.Normal)
+			{
+				suitSprite.gameObject.SetActive(true);
+				suitSprite.sprite = suits[(int)suit];
 
-			if (colorizeSuitSprites)
-			{
-				suitSprite.color = suit == CardSuit.Spades || suit == CardSuit.Clubs ? blackSuitColor : redSuitColor;
+				if (colorizeSuitSprites)
+				{
+					suitSprite.color = suit == CardSuit.Spades || suit == CardSuit.Clubs ? blackSuitColor : redSuitColor;
+				}
+				else
+				{
+					suitSprite.color = Color.white;
+				}
 			}
-			else
+			else if (type == CardType.Wild)
 			{
-				suitSprite.color = Color.white;
+				suitSprite.gameObject.SetActive(false);
+			}
+		}
+
+		foreach (SpriteRenderer specialSprite in specialSprites)
+		{
+			if (!revealed)
+			{
+				specialSprite.gameObject.SetActive(false);
+				continue;
+			}
+
+			if (type == CardType.Normal)
+			{
+				specialSprite.gameObject.SetActive(false);
+			}
+			else if (type == CardType.Wild)
+			{
+				specialSprite.gameObject.SetActive(true);
+				specialSprite.sprite = wild;
 			}
 		}
 	}
@@ -154,6 +196,19 @@ public class Card : MonoBehaviour
 		set
 		{
 			suit = value;
+			UpdateCard();
+		}
+	}
+
+	public CardType Type
+	{
+		get
+		{
+			return type;
+		}
+		set
+		{
+			type = value;
 			UpdateCard();
 		}
 	}

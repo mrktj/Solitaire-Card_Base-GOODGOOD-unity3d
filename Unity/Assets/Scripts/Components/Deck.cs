@@ -42,7 +42,7 @@ public class Deck : MonoBehaviour
 		{
 			for (int j = 0, jMax = System.Enum.GetNames(typeof(CardSuit)).Length; j < jMax; j++)
 			{
-				Card card = CreateChildCard();
+				Card card = CreateNewCard();
 				card.Rank = (CardRank)i;
 				card.Suit = (CardSuit)j;
 				card.Revealed = false;
@@ -79,7 +79,7 @@ public class Deck : MonoBehaviour
 		}
 	}
 
-	Card CreateChildCard()
+	public Card CreateNewCard()
 	{
 		GameObject cardObject = NGUITools.AddChild(gameObject, cardPrefab);
 		return cardObject.GetComponent<Card>();

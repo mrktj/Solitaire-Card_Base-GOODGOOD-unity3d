@@ -13,6 +13,7 @@ public class TriPeaksGame : MonoBehaviour
 	public bool restartGame = false;
 	public bool undoLastMove = false;
 	public bool shuffleBoard = false;
+	public bool addWildCard = false;
 #endif
 
 	class Action
@@ -58,6 +59,12 @@ public class TriPeaksGame : MonoBehaviour
 		{
 			shuffleBoard = false;
 			ShuffleBoard();
+		}
+
+		if (addWildCard)
+		{
+			addWildCard = false;
+			AddWildCard();
 		}
 	}
 #endif
@@ -125,6 +132,12 @@ public class TriPeaksGame : MonoBehaviour
 	{
 		if (undoHistory.Count == 0) return;
 
+		if (waste[0].Type == CardType.Wild)
+		{
+			// TODO: Warn player that they'll lose their Wild card.
+			GameObject.Destroy(waste.TakeTopCard().gameObject);
+		}
+
 		Action action = undoHistory[undoHistory.Count - 1];
 		undoHistory.RemoveAt(undoHistory.Count - 1);
 
@@ -160,6 +173,14 @@ public class TriPeaksGame : MonoBehaviour
 		}
 
 		UpdateBoard();
+	}
+
+	void AddWildCard()
+	{
+		Card card = deck.CreateNewCard();
+		card.Type = CardType.Wild;
+		waste.AddCard(card);
+		card.Revealed = true;
 	}
 
 	/// <summary>
@@ -255,8 +276,9 @@ public class TriPeaksGame : MonoBehaviour
 			int numRanks = System.Enum.GetNames(typeof(CardRank)).Length;
 
 			// Tapped on a valid slot card (i.e. +1/-1).
-			if ((int)card.Rank == (int)(waste[0].Rank + numRanks - 1) % numRanks ||
-			    (int)card.Rank == (int)(waste[0].Rank + 1) % numRanks)
+			if (card.Type == CardType.Normal && (int)card.Rank == (int)(waste[0].Rank + numRanks - 1) % numRanks ||
+			    card.Type == CardType.Normal && (int)card.Rank == (int)(waste[0].Rank + 1) % numRanks ||
+			    waste[0].Type == CardType.Wild)
 			{
 				RemoveCardFromSlot(slot);
 				UpdateBoard();
