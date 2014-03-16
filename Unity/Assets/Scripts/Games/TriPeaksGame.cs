@@ -12,6 +12,7 @@ public class TriPeaksGame : MonoBehaviour
 #if UNITY_EDITOR
 	public bool restartGame = false;
 	public bool undoLastMove = false;
+	public bool shuffleBoard = false;
 #endif
 
 	class Action
@@ -51,6 +52,12 @@ public class TriPeaksGame : MonoBehaviour
 		{
 			undoLastMove = false;
 			UndoLastMove();
+		}
+
+		if (shuffleBoard)
+		{
+			shuffleBoard = false;
+			ShuffleBoard();
 		}
 	}
 #endif
@@ -130,6 +137,29 @@ public class TriPeaksGame : MonoBehaviour
 		{
 			ReturnCardToSlot(action.slot);
 		}
+	}
+
+	void ShuffleBoard()
+	{
+		List<Slot> untouchedSlots = new List<Slot>();
+
+		for (int i = 0, iMax = board.Size; i < iMax; i++)
+		{
+			if (board[i].Card != null)
+			{
+				untouchedSlots.Add(board[i]);
+				ReturnCardFromSlot(board[i]);
+			}
+		}
+
+		deck.Shuffle();
+
+		for (int i = 0, iMax = untouchedSlots.Count; i < iMax; i++)
+		{
+			DealCardToSlot(untouchedSlots[i]);
+		}
+
+		UpdateBoard();
 	}
 
 	/// <summary>
