@@ -11,8 +11,9 @@ public class TriPeaksGame : MonoBehaviour
 
 	public UILabel timeLabel;
 
-#if UNITY_EDITOR
 	public bool paused = false;
+
+#if UNITY_EDITOR
 	public bool restartGame = false;
 	public bool undoLastMove = false;
 	public bool shuffleBoard = false;
@@ -50,8 +51,7 @@ public class TriPeaksGame : MonoBehaviour
 			DealBoard();
 		}
 	}
-
-#if UNITY_EDITOR
+	
 	void Update()
 	{
 		if (!paused)
@@ -65,6 +65,7 @@ public class TriPeaksGame : MonoBehaviour
 			}
 		}
 
+#if UNITY_EDITOR
 		if (restartGame)
 		{
 			restartGame = false;
@@ -100,8 +101,8 @@ public class TriPeaksGame : MonoBehaviour
 			addExtraTime = false;
 			AddExtraTime();
 		}
-	}
 #endif
+	}
 
 	void DealBoard()
 	{
@@ -155,12 +156,28 @@ public class TriPeaksGame : MonoBehaviour
 	{
 		for (int i = 0, iMax = board.Size; i < iMax; i++)
 		{
-			ReturnCardFromSlot(board[i]);
+			if (board[i].Card != null && board[i].Card.IsGeneratedCard)
+			{
+				Card card = board[i].TakeCard();
+				GameObject.Destroy(card.gameObject);
+			}
+			else
+			{
+				ReturnCardFromSlot(board[i]);
+			}
 		}
 		
 		while (waste.Size > 0)
 		{
-			ReturnCardFromWaste();
+			if (waste[0].IsGeneratedCard)
+			{
+				Card card = waste.TakeTopCard();
+				GameObject.Destroy(card.gameObject);
+			}
+			else
+			{
+				ReturnCardFromWaste();
+			}
 		}
 		
 		DealBoard();
@@ -231,6 +248,7 @@ public class TriPeaksGame : MonoBehaviour
 		card.Type = CardType.Wild;
 		waste.AddCard(card);
 		card.Revealed = true;
+		card.IsGeneratedCard = true;
 	}
 
 	public void AddExtraCards()
@@ -241,6 +259,7 @@ public class TriPeaksGame : MonoBehaviour
 			card.Rank = (CardRank)Random.Range(0, System.Enum.GetNames(typeof(CardRank)).Length);
 			card.Suit = (CardSuit)Random.Range(0, System.Enum.GetNames(typeof(CardSuit)).Length);
 			deck.AddCardOnTop(card);
+			card.IsGeneratedCard = true;
 		}
 	}
 

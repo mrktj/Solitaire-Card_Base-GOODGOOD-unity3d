@@ -56,6 +56,8 @@ public class Card : MonoBehaviour
 	[SerializeField] CardSuit suit;
 	[SerializeField] CardType type;
 
+	bool isGeneratedCard;
+
 	void Awake()
 	{
 #if UNITY_EDITOR
@@ -210,6 +212,18 @@ public class Card : MonoBehaviour
 		{
 			type = value;
 			UpdateCard();
+		}
+	}
+
+	public bool IsGeneratedCard
+	{
+		get
+		{
+			return isGeneratedCard;
+		}
+		set
+		{
+			isGeneratedCard = value;
 		}
 	}
 
