@@ -10,14 +10,20 @@ public class TriPeaksGame : MonoBehaviour
 	[SerializeField] Waste waste;
 
 #if UNITY_EDITOR
+	public bool paused = false;
 	public bool restartGame = false;
 	public bool undoLastMove = false;
 	public bool shuffleBoard = false;
 	public bool generateWildCard = false;
 	public bool addExtraCards = false;
+	public bool addExtraTime = false;
 #endif
 
 	const int EXTRA_CARDS_COUNT = 5;
+	const float ROUND_TIME = 60f;
+	const float EXTRA_TIME_AMOUNT = 20f;
+
+	float timeRemaining = ROUND_TIME;
 
 	class Action
 	{
@@ -46,6 +52,16 @@ public class TriPeaksGame : MonoBehaviour
 #if UNITY_EDITOR
 	void Update()
 	{
+		if (!paused)
+		{
+			timeRemaining -= Time.deltaTime;
+
+			if (Mathf.Floor(timeRemaining) <= 0)
+			{
+				paused = true;
+			}
+		}
+
 		if (restartGame)
 		{
 			restartGame = false;
@@ -74,6 +90,12 @@ public class TriPeaksGame : MonoBehaviour
 		{
 			addExtraCards = false;
 			AddExtraCards();
+		}
+
+		if (addExtraTime)
+		{
+			addExtraTime = false;
+			AddExtraTime();
 		}
 	}
 #endif
@@ -114,7 +136,19 @@ public class TriPeaksGame : MonoBehaviour
 		}
 	}
 	
-	void RestartGame()
+	public bool Paused
+	{
+		get
+		{
+			return paused;
+		}
+		set
+		{
+			paused = value;
+		}
+	}
+	
+	public void RestartGame()
 	{
 		for (int i = 0, iMax = board.Size; i < iMax; i++)
 		{
@@ -127,6 +161,10 @@ public class TriPeaksGame : MonoBehaviour
 		}
 		
 		DealBoard();
+
+		timeRemaining = ROUND_TIME;
+		undoHistory.Clear();
+		paused = false;
 	}
 	
 	void AddToUndoHistory(Action.Move move, Slot slot = null)
@@ -137,7 +175,7 @@ public class TriPeaksGame : MonoBehaviour
 		undoHistory.Add(action);
 	}
 
-	void UndoLastMove()
+	public void UndoLastMove()
 	{
 		if (undoHistory.Count == 0) return;
 
@@ -161,7 +199,7 @@ public class TriPeaksGame : MonoBehaviour
 		}
 	}
 
-	void ShuffleBoard()
+	public void ShuffleBoard()
 	{
 		List<Slot> untouchedSlots = new List<Slot>();
 
@@ -184,7 +222,7 @@ public class TriPeaksGame : MonoBehaviour
 		UpdateBoard();
 	}
 
-	void GenerateWildCard()
+	public void GenerateWildCard()
 	{
 		Card card = deck.CreateNewCard();
 		card.Type = CardType.Wild;
@@ -192,7 +230,7 @@ public class TriPeaksGame : MonoBehaviour
 		card.Revealed = true;
 	}
 
-	void AddExtraCards()
+	public void AddExtraCards()
 	{
 		for (int i = 0; i < EXTRA_CARDS_COUNT; i++)
 		{
@@ -201,6 +239,11 @@ public class TriPeaksGame : MonoBehaviour
 			card.Suit = (CardSuit)Random.Range(0, System.Enum.GetNames(typeof(CardSuit)).Length);
 			deck.AddCardOnTop(card);
 		}
+	}
+
+	public void AddExtraTime()
+	{
+		timeRemaining += EXTRA_TIME_AMOUNT;
 	}
 
 	/// <summary>
@@ -271,6 +314,9 @@ public class TriPeaksGame : MonoBehaviour
 
 	void OnRecognizeTap(TapGesture gesture)
 	{
+		// Game is paused.
+		if (paused) return;
+
 		// Didn't tap on anything.
 		if (gesture.Selection == null) return;
 
