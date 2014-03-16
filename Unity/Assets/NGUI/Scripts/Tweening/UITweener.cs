@@ -223,7 +223,10 @@ public abstract class UITweener : MonoBehaviour
 
 				// Re-add the previous persistent delegates
 				for (int i = 0; i < mTemp.Count; ++i)
-					EventDelegate.Add(onFinished, mTemp[i]);
+				{
+					EventDelegate ed = mTemp[i];
+					if (ed != null) EventDelegate.Add(onFinished, ed, ed.oneShot);
+				}
 				mTemp = null;
 			}
 
@@ -237,6 +240,24 @@ public abstract class UITweener : MonoBehaviour
 	}
 
 	List<EventDelegate> mTemp = null;
+
+	/// <summary>
+	/// Convenience function -- set a new OnFinished event delegate (here for to be consistent with RemoveOnFinished).
+	/// </summary>
+
+	public void SetOnFinished (EventDelegate.Callback del) { EventDelegate.Set(onFinished, del); }
+
+	/// <summary>
+	/// Convenience function -- set a new OnFinished event delegate (here for to be consistent with RemoveOnFinished).
+	/// </summary>
+
+	public void SetOnFinished (EventDelegate del) { EventDelegate.Set(onFinished, del); }
+
+	/// <summary>
+	/// Convenience function -- add a new OnFinished event delegate (here for to be consistent with RemoveOnFinished).
+	/// </summary>
+
+	public void AddOnFinished (EventDelegate.Callback del) { EventDelegate.Add(onFinished, del); }
 
 	/// <summary>
 	/// Convenience function -- add a new OnFinished event delegate (here for to be consistent with RemoveOnFinished).
@@ -413,6 +434,19 @@ public abstract class UITweener : MonoBehaviour
 #if UNITY_FLASH
 		if ((object)comp == null) comp = (T)go.AddComponent<T>();
 #else
+		// Find the tween with an unset group ID (group ID of 0).
+		if (comp != null && comp.tweenGroup != 0)
+		{
+			comp = null;
+			T[] comps = go.GetComponents<T>();
+			for (int i = 0, imax = comps.Length; i < imax; ++i)
+			{
+				comp = comps[i];
+				if (comp != null && comp.tweenGroup == 0) break;
+				comp = null;
+			}
+		}
+
 		if (comp == null) comp = go.AddComponent<T>();
 #endif
 		comp.mStarted = false;

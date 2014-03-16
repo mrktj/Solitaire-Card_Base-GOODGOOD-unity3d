@@ -1,7 +1,7 @@
 ----------------------------------------------
             NGUI: Next-Gen UI kit
  Copyright © 2011-2014 Tasharen Entertainment
-            Version 3.5.1
+            Version 3.5.4 r2
     http://www.tasharen.com/?page_id=197
             support@tasharen.com
 ----------------------------------------------
@@ -33,9 +33,67 @@ All can be found here: http://www.tasharen.com/forum/index.php?topic=6754.0
 
 Using NGUI with JavaScript (UnityScript)? Read this first: http://www.tasharen.com/forum/index.php?topic=6
 
+------------------
+ FreeType Library
+------------------
+
+NGUI version 3.5.2 onwards includes the pre-compiled C++ FreeType library, which is an open source project (http://freetype.org/)
+FreeType license: http://git.savannah.gnu.org/cgit/freetype/freetype2.git/tree/docs/FTL.TXT
+This library is used only if you choose the "Generate Bitmap" font option in the Font Maker,
+and it will not be included in the build of your game. It's only used in the editor.
+
 -----------------
  Version History
 -----------------
+
+3.5.4
+- NEW: You can now bake basic effects into bitmap fonts via inspector: soft shadow, soft outline, bevel, etc.
+- NEW: Added a way to set the Sorting Order on panels using Explicit Render Queues (for Unity 2D).
+- NEW: Cached buffers are now per-draw call rather than global, reducing memory allocations.
+- NEW: Added a "tall portrait mode" setting to the UIRoot that will shrink the UI if it's in portrait mode.
+- NEW: UIGrid and UITable now has the horizontal and vertical sorting options so drag & drop items can stay where you dropped them.
+- NEW: Got rid of all the old tutorial scenes and replaced them with some new ones.
+- NEW: Added a new experimental option to the UIRoot: "Adjust by DPI".
+- NEW: Bitmap Font creation now works on OSX as well.
+- FIX: You can now clear sprite states under UIButton.
+- FIX: TweenRotation now tweens X, Y and Z values individually, so you can go from 0 to 360 now.
+- FIX: OSX character keys resulted from arrow key presses will now be ignored by UIInput.
+- FIX: Fixed an issue with scrollviews being anchored to non-centered widgets.
+- FIX: Input selection and caret should now be affected by parent alpha properly.
+- FIX: Changing the slider value via small increments should now work as expected.
+- FIX: Transform inspector will now always display rotation in -180 to 180 range.
+- FIX: CSV parser now supports multi-line input without having to insert "\n".
+- FIX: A multi-line input field with a lot of spaces will now wrap correctly.
+- FIX: Keyboard and controller navigation should again highlight things properly.
+- FIX: Disabling a game object with a widget that was just enabled should no longer cause it to remain visible on rare occasions.
+- FIX: You can now assign sliders/progress bars for scroll view scroll bars.
+- FIX: Event delegate copy will now work for raw (code) delegates as well.
+- FIX: Modifying widget dimensions in inspector is now properly undoable.
+- FIX: Typewriter effect example script now supports encoded tags.
+- FIX: Went through all examples and fixed a few that were wonky.
+
+3.5.3
+- NEW: All sprite types can now be flipped, not just simple sprites.
+- NEW: Exposed On Change event in UIInput's inspector.
+- FIX: UIButton will no longer pixel snap the normal sprite by default, and pixel snap is now off by default.
+
+3.5.2
+- NEW: Added the ability to generate bitmap fonts from within Unity using FreeType directly.
+- NEW: You can now add transparent, clamped and tiling border to sprites via the Atlas inspector.
+- NEW: You can now modify any sprite to bake a shadow or add some visual depth to it (want deeper shadow? add multiple!)
+- NEW: UIImageButton's functionality is now a part of UIButton.
+- NEW: You can now flip simple sprites horizontally and vertically (contributed by Nicki).
+- FIX: Labels using Packed Fonts no longer have the Gradient and Effect options, as they don't work with packed fonts.
+- FIX: Moved the Localization file into Examples/Resources so that it doesn't break older localization projects.
+- FIX: Buttons that start with disabled colliders will now always assume their disabled state on start.
+- FIX: UIProgressBar will no longer send OnChange if the change was limited by the number of steps.
+- FIX: It should be possible to set the font to be of Reference type again.
+- FIX: UIKeyBinding will no longer leave the button in a highlighted state.
+- FIX: Another fix for scenes being marked as edited.
+- FIX: Fixed the 2D hit detection logic.
+- FIX: Flash compile fix.
+- DEL: Removed Pixel Size property from UIFont. Set the label's target font size instead.
+- DEL: Removed UICamera's OnInput event as it wasn't being used (as it wasn't reliable).
 
 3.5.1
 - NEW: CSV reader will now convert the "\n" character sequence into a new line char.
