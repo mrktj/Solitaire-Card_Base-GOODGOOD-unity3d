@@ -12,6 +12,7 @@ public class TriPeaksGame : MonoBehaviour
 	public UILabel roundLabel;
 	public UILabel timeLabel;
 	public ResultsPanel resultsPanel;
+	public GameObject endGameButton;
 
 	public bool paused = false;
 
@@ -87,6 +88,8 @@ public class TriPeaksGame : MonoBehaviour
 			{
 				EndGame(false);
 			}
+
+			NGUITools.SetActive(endGameButton, deck.Size == 0);
 		}
 
 #if UNITY_EDITOR
@@ -174,6 +177,11 @@ public class TriPeaksGame : MonoBehaviour
 		{
 			paused = value;
 		}
+	}
+
+	public void EndGame()
+	{
+		EndGame(false);
 	}
 
 	void EndGame(bool won)
