@@ -9,7 +9,9 @@ public class TriPeaksGame : MonoBehaviour
 	[SerializeField] Board board;
 	[SerializeField] Waste waste;
 
+	public UILabel roundLabel;
 	public UILabel timeLabel;
+	public ResultsPanel resultsPanel;
 
 	public bool paused = false;
 
@@ -23,10 +25,12 @@ public class TriPeaksGame : MonoBehaviour
 #endif
 
 	const int EXTRA_CARDS_COUNT = 5;
-	const float ROUND_TIME = 60f;
+	const float ROUND_TIME = 5f;
 	const float EXTRA_TIME_AMOUNT = 20f;
 
+	int currentRound = 1;
 	float timeRemaining = ROUND_TIME;
+	bool wonLastRound = false;
 
 	class Action
 	{
@@ -56,12 +60,13 @@ public class TriPeaksGame : MonoBehaviour
 	{
 		if (!paused)
 		{
+			roundLabel.text = currentRound.ToString();
 			timeRemaining -= Time.deltaTime;
 			timeLabel.text = Mathf.Floor(timeRemaining).ToString();
 
 			if (Mathf.Floor(timeRemaining) <= 0)
 			{
-				paused = true;
+				EndGame(false);
 			}
 		}
 
@@ -151,6 +156,13 @@ public class TriPeaksGame : MonoBehaviour
 			paused = value;
 		}
 	}
+
+	void EndGame(bool won)
+	{
+		paused = true;
+		wonLastRound = won;
+		resultsPanel.Toggle(true);
+	}
 	
 	public void RestartGame()
 	{
@@ -181,6 +193,15 @@ public class TriPeaksGame : MonoBehaviour
 		}
 		
 		DealBoard();
+
+		if (wonLastRound)
+		{
+			currentRound++;
+		}
+		else
+		{
+			currentRound = 1;
+		}
 
 		timeRemaining = ROUND_TIME;
 		undoHistory.Clear();
