@@ -12,6 +12,7 @@ public class TriPeaksGame : MonoBehaviour
 	public UILabel roundLabel;
 	public UILabel timeLabel;
 	public ResultsPanel resultsPanel;
+	public GameObject endGameButton;
 
 	public bool paused = false;
 
@@ -25,7 +26,7 @@ public class TriPeaksGame : MonoBehaviour
 #endif
 
 	const int EXTRA_CARDS_COUNT = 5;
-	const float ROUND_TIME = 5f;
+	const float ROUND_TIME = 60f;
 	const float EXTRA_TIME_AMOUNT = 20f;
 
 	int currentRound = 1;
@@ -58,16 +59,37 @@ public class TriPeaksGame : MonoBehaviour
 	
 	void Update()
 	{
+#if UNITY_EDITOR
+		if (Application.isPlaying && !paused)
+#else
 		if (!paused)
+#endif
 		{
 			roundLabel.text = currentRound.ToString();
 			timeRemaining -= Time.deltaTime;
 			timeLabel.text = Mathf.Floor(timeRemaining).ToString();
 
+			bool boardCleared = true;
+
+			for (int i = 0, iMax = board.Size; i < iMax; i++)
+			{
+				if (board[i].Card != null)
+				{
+					boardCleared = false;
+				}
+			}
+
+			if (boardCleared)
+			{
+				EndGame(true);
+			}
+
 			if (Mathf.Floor(timeRemaining) <= 0)
 			{
 				EndGame(false);
 			}
+
+			NGUITools.SetActive(endGameButton, deck.Size == 0);
 		}
 
 #if UNITY_EDITOR
@@ -155,6 +177,11 @@ public class TriPeaksGame : MonoBehaviour
 		{
 			paused = value;
 		}
+	}
+
+	public void EndGame()
+	{
+		EndGame(false);
 	}
 
 	void EndGame(bool won)
