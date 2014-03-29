@@ -8,11 +8,10 @@ public class TriPeaksGame : MonoBehaviour
 	[SerializeField] Deck deck;
 	[SerializeField] Board board;
 	[SerializeField] Waste waste;
-
-	public UILabel roundLabel;
-	public UILabel timeLabel;
-	public ResultsPanel resultsPanel;
-	public GameObject endGameButton;
+	[SerializeField] UILabel roundLabel;
+	[SerializeField] UILabel timeLabel;
+	[SerializeField] ResultsPanel resultsPanel;
+	[SerializeField] GameObject endGameButton;
 
 	public bool paused = false;
 

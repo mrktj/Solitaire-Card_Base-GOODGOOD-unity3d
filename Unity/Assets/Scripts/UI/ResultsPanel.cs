@@ -5,8 +5,7 @@ public class ResultsPanel : MonoBehaviour
 {
 	[SerializeField] GameObject winScreen;
 	[SerializeField] GameObject loseScreen;
-
-	public TriPeaksGame game;
+	[SerializeField] TriPeaksGame game;
 	
 	public void Setup(bool won)
 	{
