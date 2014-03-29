@@ -5,11 +5,19 @@ using System.Collections.Generic;
 [ExecuteInEditMode]
 public class TriPeaksGame : MonoBehaviour
 {
+	[SerializeField] float timePerRound;
+	[SerializeField] int pointsPerCardTakenFromBoard;
+	[SerializeField] int pointsPerCardRemainingInDeck;
+	[SerializeField] int pointsPerSecondsRemaining;
+	[SerializeField] int extraCardsPowerup;
+	[SerializeField] float extraTimePowerup;
+
 	[SerializeField] Deck deck;
 	[SerializeField] Board board;
 	[SerializeField] Waste waste;
 	[SerializeField] UILabel roundLabel;
 	[SerializeField] UILabel timeLabel;
+	[SerializeField] UILabel scoreLabel;
 	[SerializeField] ResultsPanel resultsPanel;
 	[SerializeField] GameObject endGameButton;
 
@@ -24,12 +32,9 @@ public class TriPeaksGame : MonoBehaviour
 	public bool addExtraTime = false;
 #endif
 
-	const int EXTRA_CARDS_COUNT = 5;
-	const float ROUND_TIME = 60f;
-	const float EXTRA_TIME_AMOUNT = 20f;
-
-	int currentRound = 1;
-	float timeRemaining = ROUND_TIME;
+	int score = 0;
+	int round = 1;
+	float timeRemaining = 0;
 	bool wonLastRound = false;
 
 	class Action
@@ -45,6 +50,11 @@ public class TriPeaksGame : MonoBehaviour
 	}
 
 	List<Action> undoHistory = new List<Action>();
+
+	void Awake()
+	{
+		timeRemaining = timePerRound;
+	}
 
 	void Start()
 	{
@@ -64,9 +74,10 @@ public class TriPeaksGame : MonoBehaviour
 		if (!paused)
 #endif
 		{
-			roundLabel.text = currentRound.ToString();
+			roundLabel.text = round.ToString();
 			timeRemaining -= Time.deltaTime;
 			timeLabel.text = Mathf.Floor(timeRemaining).ToString();
+			scoreLabel.text = score.ToString();
 
 			bool boardCleared = true;
 
@@ -188,7 +199,12 @@ public class TriPeaksGame : MonoBehaviour
 		paused = true;
 		wonLastRound = won;
 		resultsPanel.Toggle(true);
-		resultsPanel.Setup(won);
+
+		int deckScore = won ? deck.Size * pointsPerCardRemainingInDeck : 0;
+		int timeScore = won ? Mathf.FloorToInt(timeRemaining) * pointsPerSecondsRemaining : 0;
+		int totalScore = score + deckScore + timeScore;
+		resultsPanel.Setup(won, score, deckScore, timeScore, totalScore);
+		score = totalScore;
 	}
 	
 	public void RestartGame()
@@ -223,14 +239,15 @@ public class TriPeaksGame : MonoBehaviour
 
 		if (wonLastRound)
 		{
-			currentRound++;
+			round++;
 		}
 		else
 		{
-			currentRound = 1;
+			score = 0;
+			round = 1;
 		}
 
-		timeRemaining = ROUND_TIME;
+		timeRemaining = timePerRound;
 		undoHistory.Clear();
 		paused = false;
 	}
@@ -260,10 +277,11 @@ public class TriPeaksGame : MonoBehaviour
 		{
 			ReturnCardFromWaste();
 		}
-		else
+		else if (action.move == Action.Move.RemoveCardFromSlot)
 		{
 			ReturnCardToSlot(action.slot);
 			UpdateBoard();
+			score -= pointsPerCardTakenFromBoard;
 		}
 	}
 
@@ -301,7 +319,7 @@ public class TriPeaksGame : MonoBehaviour
 
 	public void AddExtraCards()
 	{
-		for (int i = 0; i < EXTRA_CARDS_COUNT; i++)
+		for (int i = 0; i < extraCardsPowerup; i++)
 		{
 			Card card = deck.CreateNewCard();
 			card.Rank = (CardRank)Random.Range(0, System.Enum.GetNames(typeof(CardRank)).Length);
@@ -313,7 +331,7 @@ public class TriPeaksGame : MonoBehaviour
 
 	public void AddExtraTime()
 	{
-		timeRemaining += EXTRA_TIME_AMOUNT;
+		timeRemaining += extraTimePowerup;
 	}
 
 	/// <summary>
@@ -419,6 +437,7 @@ public class TriPeaksGame : MonoBehaviour
 				RemoveCardFromSlot(slot);
 				UpdateBoard();
 				AddToUndoHistory(Action.Move.RemoveCardFromSlot, slot);
+				score += pointsPerCardTakenFromBoard;
 				return;
 			}
 		}

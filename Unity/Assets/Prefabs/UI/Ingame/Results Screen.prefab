@@ -970,7 +970,7 @@ MonoBehaviour:
   alwaysOnScreen: 0
   anchorOffset: 0
   renderQueue: 0
-  startingRenderQueue: 3009
+  startingRenderQueue: 3011
   mAlpha: 1
   mClipping: 0
   mClipRange: {x: 0, y: 0, z: 300, w: 200}
@@ -1750,9 +1750,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e47e7b18a8c347308d356938535fb37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  winScreen: {fileID: 100036}
-  loseScreen: {fileID: 100000}
   game: {fileID: 0}
+  winScreen: {fileID: 100036}
+  winRoundScoreLabel: {fileID: 11400028}
+  winCardRemainingScoreLabel: {fileID: 11400024}
+  winTimeRemainingScoreLabel: {fileID: 0}
+  winTotalScoreLabel: {fileID: 11400050}
+  loseScreen: {fileID: 100000}
+  loseTotalScoreLabel: {fileID: 11400022}
 --- !u!114 &11400046
 MonoBehaviour:
   m_ObjectHideFlags: 1
