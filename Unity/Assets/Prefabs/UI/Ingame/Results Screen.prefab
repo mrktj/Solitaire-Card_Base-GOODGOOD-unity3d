@@ -1750,6 +1750,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e47e7b18a8c347308d356938535fb37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  winScreen: {fileID: 100036}
+  loseScreen: {fileID: 100000}
   game: {fileID: 0}
 --- !u!114 &11400046
 MonoBehaviour:

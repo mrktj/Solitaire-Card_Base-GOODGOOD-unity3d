@@ -189,6 +189,7 @@ public class TriPeaksGame : MonoBehaviour
 		paused = true;
 		wonLastRound = won;
 		resultsPanel.Toggle(true);
+		resultsPanel.Setup(won);
 	}
 	
 	public void RestartGame()
