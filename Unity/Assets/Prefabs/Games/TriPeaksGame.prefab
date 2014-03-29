@@ -10057,6 +10057,7 @@ MonoBehaviour:
   roundLabel: {fileID: 0}
   timeLabel: {fileID: 0}
   resultsPanel: {fileID: 0}
+  endGameButton: {fileID: 0}
   paused: 0
   restartGame: 0
   undoLastMove: 0
