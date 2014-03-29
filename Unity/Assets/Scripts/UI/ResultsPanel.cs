@@ -3,7 +3,16 @@ using System.Collections;
 
 public class ResultsPanel : MonoBehaviour
 {
+	[SerializeField] GameObject winScreen;
+	[SerializeField] GameObject loseScreen;
+
 	public TriPeaksGame game;
+	
+	public void Setup(bool won)
+	{
+		NGUITools.SetActive(winScreen, won);
+		NGUITools.SetActive(loseScreen, !won);
+	}
 
 	public void Toggle(bool toggle)
 	{
