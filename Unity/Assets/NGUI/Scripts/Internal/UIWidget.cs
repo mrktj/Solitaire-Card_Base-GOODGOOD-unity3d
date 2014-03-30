@@ -213,7 +213,7 @@ public class UIWidget : UIRect
 			int min = minHeight;
 			if (value < min) value = min;
 
-			if (mHeight != value && keepAspectRatio != AspectRatioSource.BasedOnHeight)
+			if (mHeight != value && keepAspectRatio != AspectRatioSource.BasedOnWidth)
 			{
 				if (isAnchoredVertically)
 				{
@@ -702,8 +702,8 @@ public class UIWidget : UIRect
 		if (finalHeight < minHeight) finalHeight = minHeight;
 
 		t.localPosition = pos;
-		width = finalWidth;
-		height = finalHeight;
+		this.width = finalWidth;
+		this.height = finalHeight;
 
 		if (isAnchored)
 		{
