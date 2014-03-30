@@ -14,6 +14,7 @@ public abstract class SingletonMonoBehaviour<T> : MonoBehaviour
 				GameObject instanceObject = new GameObject();
 				instanceObject.name = typeof(T).ToString();
 				instance = instanceObject.AddComponent<T>();
+				DontDestroyOnLoad(instanceObject);
 			}
 
 			return instance;
@@ -25,6 +26,10 @@ public abstract class SingletonMonoBehaviour<T> : MonoBehaviour
 		if (instance == null)
 		{
 			instance = gameObject.GetComponent<T>();
+		}
+		else
+		{
+			GameObject.Destroy(gameObject);
 		}
 	}
 
