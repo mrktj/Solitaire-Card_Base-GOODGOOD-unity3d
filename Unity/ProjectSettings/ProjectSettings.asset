@@ -10,7 +10,7 @@ PlayerSettings:
   targetGlesGraphics: 1
   targetResolution: 0
   accelerometerFrequency: 0
-  companyName: DefaultCompany
+  companyName: Pan Fried Games
   productName: Solitaire
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
@@ -73,7 +73,7 @@ PlayerSettings:
     16:10: 1
     16:9: 1
     Others: 1
-  iPhoneBundleIdentifier: com.Company.ProductName
+  iPhoneBundleIdentifier: com.panfriedgames.Solitaire
   metroEnableIndependentInputSource: 0
   metroEnableLowLatencyPresentationAPI: 0
   productGUID: 2a5b9170b7ede448c98a77e585c9f4a6
