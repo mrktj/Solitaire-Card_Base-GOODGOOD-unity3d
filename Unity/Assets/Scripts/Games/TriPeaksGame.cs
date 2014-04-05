@@ -39,7 +39,7 @@ public class TriPeaksGame : MonoBehaviour
 	int round = 1;
 	int lives = 0;
 	float timeRemaining = 0;
-	bool wonLastRound = false;
+	bool successfulRound = false;
 
 	class Action
 	{
@@ -143,13 +143,13 @@ public class TriPeaksGame : MonoBehaviour
 
 		if (boardCleared)
 		{
-			wonLastRound = true;
+			successfulRound = true;
 			endGame = true;
 		}
 		
 		if (Mathf.Floor(timeRemaining) <= 0)
 		{
-			wonLastRound = false;
+			successfulRound = false;
 			endGame = true;
 		}
 	}
@@ -216,12 +216,12 @@ public class TriPeaksGame : MonoBehaviour
 		paused = true;
 		resultsPanel.Toggle(true);
 
-		if (wonLastRound && deck.Size >= cardsForExtraLife) lives++;
+		if (successfulRound && deck.Size >= cardsForExtraLife) lives++;
 
-		int deckScore = wonLastRound ? deck.Size * pointsPerCardRemainingInDeck : 0;
-		int timeScore = wonLastRound ? Mathf.FloorToInt(timeRemaining) * pointsPerSecondsRemaining : 0;
+		int deckScore = successfulRound ? deck.Size * pointsPerCardRemainingInDeck : 0;
+		int timeScore = successfulRound ? Mathf.FloorToInt(timeRemaining) * pointsPerSecondsRemaining : 0;
 		int totalScore = score + deckScore + timeScore;
-		resultsPanel.Setup(wonLastRound, score, deckScore, timeScore, totalScore);
+		resultsPanel.Setup(successfulRound, score, deckScore, timeScore, totalScore);
 		score = totalScore;
 	}
 	
@@ -255,7 +255,7 @@ public class TriPeaksGame : MonoBehaviour
 		
 		DealBoard();
 
-		if (wonLastRound)
+		if (successfulRound)
 		{
 			round++;
 		}
@@ -272,6 +272,7 @@ public class TriPeaksGame : MonoBehaviour
 		timeRemaining = timePerRound;
 		undoHistory.Clear();
 		paused = false;
+		successfulRound = false;
 	}
 	
 	void AddToUndoHistory(Action.Move move, Slot slot = null)
