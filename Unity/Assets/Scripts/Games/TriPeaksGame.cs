@@ -24,6 +24,7 @@ public class TriPeaksGame : MonoBehaviour
 	[SerializeField] GameObject endGameButton;
 
 	public bool paused = false;
+	public bool endGame = false;
 
 #if UNITY_EDITOR
 	public bool restartGame = false;
@@ -77,33 +78,14 @@ public class TriPeaksGame : MonoBehaviour
 		if (!paused)
 #endif
 		{
-			roundLabel.text = round.ToString();
-			timeRemaining -= Time.deltaTime;
-			timeLabel.text = Mathf.Floor(timeRemaining).ToString();
-			scoreLabel.text = score.ToString();
-			livesSprite.width = livesSprite.atlas.GetSprite(livesSprite.spriteName).width * lives;
+			UpdateGame();
+			UpdateUI();
 
-			bool boardCleared = true;
-
-			for (int i = 0, iMax = board.Size; i < iMax; i++)
+			if (endGame)
 			{
-				if (board[i].Card != null)
-				{
-					boardCleared = false;
-				}
+				endGame = false;
+				EndGame();
 			}
-
-			if (boardCleared)
-			{
-				EndGame(true);
-			}
-
-			if (Mathf.Floor(timeRemaining) <= 0)
-			{
-				EndGame(false);
-			}
-
-			NGUITools.SetActive(endGameButton, deck.Size == 0);
 		}
 
 #if UNITY_EDITOR
@@ -145,6 +127,42 @@ public class TriPeaksGame : MonoBehaviour
 #endif
 	}
 
+	void UpdateGame()
+	{
+		timeRemaining -= Time.deltaTime;
+
+		bool boardCleared = true;
+		
+		for (int i = 0, iMax = board.Size; i < iMax; i++)
+		{
+			if (board[i].Card != null)
+			{
+				boardCleared = false;
+			}
+		}
+
+		if (boardCleared)
+		{
+			wonLastRound = true;
+			endGame = true;
+		}
+		
+		if (Mathf.Floor(timeRemaining) <= 0)
+		{
+			wonLastRound = false;
+			endGame = true;
+		}
+	}
+
+	void UpdateUI()
+	{
+		roundLabel.text = round.ToString();
+		timeLabel.text = Mathf.Floor(timeRemaining).ToString();
+		scoreLabel.text = score.ToString();
+		livesSprite.width = livesSprite.atlas.GetSprite(livesSprite.spriteName).width * lives;
+		NGUITools.SetActive(endGameButton, deck.Size == 0);
+	}
+
 	void DealBoard()
 	{
 		deck.Shuffle();
@@ -154,11 +172,11 @@ public class TriPeaksGame : MonoBehaviour
 			DealCardToSlot(board[i]);
 		}
 
-		UpdateBoard();
+		RefreshBoard();
 		RevealNextCard();
 	}
 
-	void UpdateBoard()
+	void RefreshBoard()
 	{
 		// Determine which slots should reveal their cards.
 		for (int i = 0, iMax = board.Size; i < iMax; i++)
@@ -193,23 +211,17 @@ public class TriPeaksGame : MonoBehaviour
 		}
 	}
 
-	public void EndGame()
-	{
-		EndGame(false);
-	}
-
-	void EndGame(bool won)
+	void EndGame()
 	{
 		paused = true;
-		wonLastRound = won;
 		resultsPanel.Toggle(true);
 
-		if (won && deck.Size >= cardsForExtraLife) lives++;
+		if (wonLastRound && deck.Size >= cardsForExtraLife) lives++;
 
-		int deckScore = won ? deck.Size * pointsPerCardRemainingInDeck : 0;
-		int timeScore = won ? Mathf.FloorToInt(timeRemaining) * pointsPerSecondsRemaining : 0;
+		int deckScore = wonLastRound ? deck.Size * pointsPerCardRemainingInDeck : 0;
+		int timeScore = wonLastRound ? Mathf.FloorToInt(timeRemaining) * pointsPerSecondsRemaining : 0;
 		int totalScore = score + deckScore + timeScore;
-		resultsPanel.Setup(won, score, deckScore, timeScore, totalScore);
+		resultsPanel.Setup(wonLastRound, score, deckScore, timeScore, totalScore);
 		score = totalScore;
 	}
 	
@@ -290,7 +302,7 @@ public class TriPeaksGame : MonoBehaviour
 		else if (action.move == Action.Move.RemoveCardFromSlot)
 		{
 			ReturnCardToSlot(action.slot);
-			UpdateBoard();
+			RefreshBoard();
 			score -= pointsPerCardTakenFromBoard;
 		}
 	}
@@ -315,7 +327,7 @@ public class TriPeaksGame : MonoBehaviour
 			DealCardToSlot(untouchedSlots[i]);
 		}
 
-		UpdateBoard();
+		RefreshBoard();
 	}
 
 	public void GenerateWildCard()
@@ -445,7 +457,7 @@ public class TriPeaksGame : MonoBehaviour
 			    waste[0].Type == CardType.Wild)
 			{
 				RemoveCardFromSlot(slot);
-				UpdateBoard();
+				RefreshBoard();
 				AddToUndoHistory(Action.Move.RemoveCardFromSlot, slot);
 				score += pointsPerCardTakenFromBoard;
 				return;
