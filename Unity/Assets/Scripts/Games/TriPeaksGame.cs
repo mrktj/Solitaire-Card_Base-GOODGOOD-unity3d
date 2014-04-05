@@ -9,6 +9,7 @@ public class TriPeaksGame : MonoBehaviour
 	[SerializeField] int pointsPerCardTakenFromBoard;
 	[SerializeField] int pointsPerCardRemainingInDeck;
 	[SerializeField] int pointsPerSecondsRemaining;
+	[SerializeField] int cardsForExtraLife;
 	[SerializeField] int extraCardsPowerup;
 	[SerializeField] float extraTimePowerup;
 
@@ -18,6 +19,7 @@ public class TriPeaksGame : MonoBehaviour
 	[SerializeField] UILabel roundLabel;
 	[SerializeField] UILabel timeLabel;
 	[SerializeField] UILabel scoreLabel;
+	[SerializeField] UISprite livesSprite;
 	[SerializeField] ResultsPanel resultsPanel;
 	[SerializeField] GameObject endGameButton;
 
@@ -34,6 +36,7 @@ public class TriPeaksGame : MonoBehaviour
 
 	int score = 0;
 	int round = 1;
+	int lives = 0;
 	float timeRemaining = 0;
 	bool wonLastRound = false;
 
@@ -78,6 +81,7 @@ public class TriPeaksGame : MonoBehaviour
 			timeRemaining -= Time.deltaTime;
 			timeLabel.text = Mathf.Floor(timeRemaining).ToString();
 			scoreLabel.text = score.ToString();
+			livesSprite.width = livesSprite.atlas.GetSprite(livesSprite.spriteName).width * lives;
 
 			bool boardCleared = true;
 
@@ -200,6 +204,8 @@ public class TriPeaksGame : MonoBehaviour
 		wonLastRound = won;
 		resultsPanel.Toggle(true);
 
+		if (won && deck.Size >= cardsForExtraLife) lives++;
+
 		int deckScore = won ? deck.Size * pointsPerCardRemainingInDeck : 0;
 		int timeScore = won ? Mathf.FloorToInt(timeRemaining) * pointsPerSecondsRemaining : 0;
 		int totalScore = score + deckScore + timeScore;
@@ -240,6 +246,10 @@ public class TriPeaksGame : MonoBehaviour
 		if (wonLastRound)
 		{
 			round++;
+		}
+		else if (lives > 0)
+		{
+			lives--;
 		}
 		else
 		{

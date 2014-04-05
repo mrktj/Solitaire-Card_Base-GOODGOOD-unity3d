@@ -10055,6 +10055,7 @@ MonoBehaviour:
   pointsPerCardTakenFromBoard: 10
   pointsPerCardRemainingInDeck: 20
   pointsPerSecondsRemaining: 5
+  cardsForExtraLife: 5
   extraCardsPowerup: 5
   extraTimePowerup: 20
   deck: {fileID: 11400008}
@@ -10063,6 +10064,7 @@ MonoBehaviour:
   roundLabel: {fileID: 0}
   timeLabel: {fileID: 0}
   scoreLabel: {fileID: 0}
+  livesSprite: {fileID: 0}
   resultsPanel: {fileID: 0}
   endGameButton: {fileID: 0}
   paused: 0
