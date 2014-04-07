@@ -5,7 +5,7 @@ public abstract class SingletonMonoBehaviour<T> : MonoBehaviour
 {
 	static T instance;
 
-	public T Instance
+	public static T Instance
 	{
 		get
 		{
@@ -15,7 +15,7 @@ public abstract class SingletonMonoBehaviour<T> : MonoBehaviour
 				instanceObject.name = typeof(T).ToString();
 				instance = instanceObject.AddComponent<T>();
 				DontDestroyOnLoad(instanceObject);
-				Init();
+				instance.Init();
 			}
 
 			return instance;
