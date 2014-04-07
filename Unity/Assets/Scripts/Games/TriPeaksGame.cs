@@ -223,6 +223,11 @@ public class TriPeaksGame : MonoBehaviour
 		int totalScore = score + deckScore + timeScore;
 		resultsPanel.Setup(successfulRound, score, deckScore, timeScore, totalScore);
 		score = totalScore;
+
+		if (score > DataManager.Instance.HighScore)
+		{
+			DataManager.Instance.HighScore = score;
+		}
 	}
 	
 	public void RestartGame()
