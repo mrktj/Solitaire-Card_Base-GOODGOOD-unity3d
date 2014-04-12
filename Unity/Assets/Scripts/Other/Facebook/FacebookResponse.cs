@@ -49,4 +49,9 @@ public class FacebookResponse
 	{
 		return dataDict.ContainsKey(key);
 	}
+
+	public ICollection<string> Keys
+	{
+		get { return dataDict.Keys; }
+	}
 }
