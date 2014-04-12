@@ -6,6 +6,8 @@ public class DataManager : SingletonMonoBehaviour<DataManager>
 	// Create keys and values for all data here.
 	const string highScoreKey = "DATA_HIGH_SCORE";
 	int highScoreValue;
+	const string coinsKey = "DATA_COINS";
+	int coinsValue;
 
 	bool changesPending = false;
 
@@ -13,6 +15,7 @@ public class DataManager : SingletonMonoBehaviour<DataManager>
 	{
 		// Initialize all data here.
 		highScoreValue = PlayerPrefs.GetInt(highScoreKey);
+		coinsValue = PlayerPrefs.GetInt(coinsKey);
 	}
 
 	void Update()
@@ -23,6 +26,7 @@ public class DataManager : SingletonMonoBehaviour<DataManager>
 
 			// Save all data here.
 			PlayerPrefs.SetInt(highScoreKey, highScoreValue);
+			PlayerPrefs.SetInt(coinsKey, coinsValue);
 
 			PlayerPrefs.Save();
 		}
@@ -38,6 +42,18 @@ public class DataManager : SingletonMonoBehaviour<DataManager>
 		set
 		{
 			highScoreValue = value;
+			changesPending = true;
+		}
+	}
+
+	public bool HasCoins { get { return PlayerPrefs.HasKey(coinsKey); }}
+
+	public int Coins
+	{
+		get { return coinsValue; }
+		set
+		{
+			coinsValue = value;
 			changesPending = true;
 		}
 	}

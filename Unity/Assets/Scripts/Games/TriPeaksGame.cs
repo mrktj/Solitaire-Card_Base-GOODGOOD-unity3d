@@ -9,9 +9,15 @@ public class TriPeaksGame : MonoBehaviour
 	[SerializeField] int pointsPerCardTakenFromBoard;
 	[SerializeField] int pointsPerCardRemainingInDeck;
 	[SerializeField] int pointsPerSecondsRemaining;
+	[SerializeField] int coinsPerCard;
 	[SerializeField] int cardsForExtraLife;
 	[SerializeField] int extraCardsPowerup;
 	[SerializeField] float extraTimePowerup;
+	[SerializeField] int costForUndoLastMove;
+	[SerializeField] int costForShuffleBoard;
+	[SerializeField] int costForGenerateWildCard;
+	[SerializeField] int costForAddExtraCards;
+	[SerializeField] int costForAddExtraTime;
 
 	[SerializeField] Deck deck;
 	[SerializeField] Board board;
@@ -19,6 +25,7 @@ public class TriPeaksGame : MonoBehaviour
 	[SerializeField] UILabel roundLabel;
 	[SerializeField] UILabel timeLabel;
 	[SerializeField] UILabel scoreLabel;
+	[SerializeField] UILabel coinsLabel;
 	[SerializeField] UISprite livesSprite;
 	[SerializeField] ResultsPanel resultsPanel;
 	[SerializeField] GameObject endGameButton;
@@ -159,6 +166,7 @@ public class TriPeaksGame : MonoBehaviour
 		roundLabel.text = round.ToString();
 		timeLabel.text = Mathf.Floor(timeRemaining).ToString();
 		scoreLabel.text = score.ToString();
+		coinsLabel.text = DataManager.Instance.Coins.ToString();
 		livesSprite.width = livesSprite.atlas.GetSprite(livesSprite.spriteName).width * lives;
 		NGUITools.SetActive(endGameButton, deck.Size == 0);
 	}
@@ -292,6 +300,14 @@ public class TriPeaksGame : MonoBehaviour
 	{
 		if (undoHistory.Count == 0) return;
 
+		if (DataManager.Instance.Coins < costForUndoLastMove)
+		{
+			// TODO: Add method to purchase coins.
+			return;
+		}
+
+		DataManager.Instance.Coins -= costForUndoLastMove;
+
 		if (waste[0].Type == CardType.Wild)
 		{
 			// TODO: Warn player that they'll lose their Wild card.
@@ -310,11 +326,20 @@ public class TriPeaksGame : MonoBehaviour
 			ReturnCardToSlot(action.slot);
 			RefreshBoard();
 			score -= pointsPerCardTakenFromBoard;
+			DataManager.Instance.Coins -= coinsPerCard;
 		}
 	}
 
 	public void ShuffleBoard()
 	{
+		if (DataManager.Instance.Coins < costForShuffleBoard)
+		{
+			// TODO: Add method to purchase coins.
+			return;
+		}
+		
+		DataManager.Instance.Coins -= costForShuffleBoard;
+
 		List<Slot> untouchedSlots = new List<Slot>();
 
 		for (int i = 0, iMax = board.Size; i < iMax; i++)
@@ -338,6 +363,14 @@ public class TriPeaksGame : MonoBehaviour
 
 	public void GenerateWildCard()
 	{
+		if (DataManager.Instance.Coins < costForGenerateWildCard)
+		{
+			// TODO: Add method to purchase coins.
+			return;
+		}
+		
+		DataManager.Instance.Coins -= costForGenerateWildCard;
+
 		Card card = deck.CreateNewCard();
 		card.Type = CardType.Wild;
 		waste.AddCard(card);
@@ -347,6 +380,14 @@ public class TriPeaksGame : MonoBehaviour
 
 	public void AddExtraCards()
 	{
+		if (DataManager.Instance.Coins < costForAddExtraCards)
+		{
+			// TODO: Add method to purchase coins.
+			return;
+		}
+		
+		DataManager.Instance.Coins -= costForAddExtraCards;
+
 		for (int i = 0; i < extraCardsPowerup; i++)
 		{
 			Card card = deck.CreateNewCard();
@@ -359,6 +400,14 @@ public class TriPeaksGame : MonoBehaviour
 
 	public void AddExtraTime()
 	{
+		if (DataManager.Instance.Coins < costForAddExtraTime)
+		{
+			// TODO: Add method to purchase coins.
+			return;
+		}
+		
+		DataManager.Instance.Coins -= costForAddExtraTime;
+
 		timeRemaining += extraTimePowerup;
 	}
 
@@ -466,6 +515,7 @@ public class TriPeaksGame : MonoBehaviour
 				RefreshBoard();
 				AddToUndoHistory(Action.Move.RemoveCardFromSlot, slot);
 				score += pointsPerCardTakenFromBoard;
+				DataManager.Instance.Coins += coinsPerCard;
 				return;
 			}
 		}
