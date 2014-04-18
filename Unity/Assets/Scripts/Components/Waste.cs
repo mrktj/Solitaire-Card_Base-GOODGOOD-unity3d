@@ -29,13 +29,7 @@ public class Waste : MonoBehaviour
 
 	public void AddCard(Card card)
 	{
-		foreach (Card cardBelow in cards)
-		{
-			Vector3 cardPosition = cardBelow.transform.localPosition;
-			cardPosition.z += 1f;
-			cardBelow.transform.localPosition = cardPosition;
-		}
-
+		ShiftCardDepths(1f);
 		cards.Insert(0, card);
 		card.transform.parent = transform;
 		card.MoveToPosition(Vector3.zero);
@@ -47,14 +41,18 @@ public class Waste : MonoBehaviour
 
 		Card card = cards[0];
 		cards.RemoveAt(0);
-
-		foreach (Card cardBelow in cards)
-		{
-			Vector3 cardPosition = cardBelow.transform.localPosition;
-			cardPosition.z -= 1f;
-			cardBelow.transform.localPosition = cardPosition;
-		}
+		ShiftCardDepths(-1f);
 
 		return card;
+	}
+
+	void ShiftCardDepths(float direction)
+	{
+		foreach (Card card in cards)
+		{
+			Vector3 cardPosition = card.transform.localPosition;
+			cardPosition.z += direction;
+			card.transform.localPosition = cardPosition;
+		}
 	}
 }

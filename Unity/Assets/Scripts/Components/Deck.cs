@@ -120,6 +120,7 @@ public class Deck : MonoBehaviour
 	{
 		Card card = cards[0];
 		cards.RemoveAt(0);
+		SetAllCardsDepth();
 		return card;
 	}
 
