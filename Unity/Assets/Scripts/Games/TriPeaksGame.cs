@@ -249,14 +249,17 @@ public class TriPeaksGame : MonoBehaviour
 	{
 		for (int i = 0, iMax = board.Size; i < iMax; i++)
 		{
-			if (board[i].Card != null && board[i].Card.IsGeneratedCard)
+			if (board[i].Card != null)
 			{
-				Card card = board[i].TakeCard();
-				GameObject.Destroy(card.gameObject);
-			}
-			else
-			{
-				ReturnCardFromSlot(board[i]);
+				if (board[i].Card.IsGeneratedCard)
+				{
+					Card card = board[i].TakeCard();
+					GameObject.Destroy(card.gameObject);
+				}
+				else
+				{
+					ReturnCardFromSlot(board[i]);
+				}
 			}
 		}
 		
@@ -326,14 +329,18 @@ public class TriPeaksGame : MonoBehaviour
 
 		if (action.move == Action.Move.RevealNextCard)
 		{
-			ReturnCardFromWaste();
+			if (waste.Size > 0)
+			{
+				ReturnCardFromWaste();
+			}
 		}
 		else if (action.move == Action.Move.RemoveCardFromSlot)
 		{
-			ReturnCardToSlot(action.slot);
-			RefreshBoard();
-			score -= pointsPerCardTakenFromBoard;
-			DataManager.Instance.Coins -= coinsPerCardTakenFromBoard;
+			if (waste.Size > 0)
+			{
+				ReturnCardToSlot(action.slot);
+				RefreshBoard();
+			}
 		}
 	}
 
@@ -452,11 +459,8 @@ public class TriPeaksGame : MonoBehaviour
 	void ReturnCardFromSlot(Slot slot)
 	{
 		Card card = slot.TakeCard();
-		if (card != null)
-		{
-			deck.AddCardOnTop(card);
-			card.Revealed = false;
-		}
+		deck.AddCardOnTop(card);
+		card.Revealed = false;
 	}
 
 	/// <summary>
@@ -465,11 +469,8 @@ public class TriPeaksGame : MonoBehaviour
 	void ReturnCardFromWaste()
 	{
 		Card card = waste.TakeTopCard();
-		if (card != null)
-		{
-			deck.AddCardOnTop(card);
-			card.Revealed = false;
-		}
+		deck.AddCardOnTop(card);
+		card.Revealed = false;
 	}
 
 	/// <summary>
@@ -478,10 +479,7 @@ public class TriPeaksGame : MonoBehaviour
 	void ReturnCardToSlot(Slot slot)
 	{
 		Card card = waste.TakeTopCard();
-		if (card != null)
-		{
-			slot.PlaceCard(card);
-		}
+		slot.PlaceCard(card);
 	}
 
 	void OnRecognizeTap(TapGesture gesture)
