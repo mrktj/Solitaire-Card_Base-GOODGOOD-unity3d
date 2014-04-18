@@ -138,7 +138,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 100000}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.94880009, y: 10.2528858, z: -1}
+  m_LocalPosition: {x: 0, y: 0, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 400002}
@@ -206,7 +206,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 100012}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.94871616, y: -130.160645, z: -1}
+  m_LocalPosition: {x: 0, y: -130, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 400010}
@@ -336,7 +336,10 @@ MonoBehaviour:
   pressedSprite: 
   disabledSprite: 
   pixelSnap: 0
-  onClick: []
+  onClick:
+  - mTarget: {fileID: 0}
+    mMethodName: Play
+    oneShot: 0
 --- !u!114 &11400006
 MonoBehaviour:
   m_ObjectHideFlags: 1
