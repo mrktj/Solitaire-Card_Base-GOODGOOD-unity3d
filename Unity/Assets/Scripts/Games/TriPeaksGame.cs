@@ -308,6 +308,8 @@ public class TriPeaksGame : MonoBehaviour
 
 	public void UndoLastMove()
 	{
+		if (paused) return;
+		
 		if (undoHistory.Count == 0) return;
 
 		if (DataManager.Instance.Coins < costForUndoLastMove)
@@ -346,6 +348,8 @@ public class TriPeaksGame : MonoBehaviour
 
 	public void ShuffleBoard()
 	{
+		if (paused) return;
+		
 		if (DataManager.Instance.Coins < costForShuffleBoard)
 		{
 			// TODO: Add method to purchase coins.
@@ -377,6 +381,8 @@ public class TriPeaksGame : MonoBehaviour
 
 	public void GenerateWildCard()
 	{
+		if (paused) return;
+		
 		if (DataManager.Instance.Coins < costForGenerateWildCard)
 		{
 			// TODO: Add method to purchase coins.
@@ -394,6 +400,8 @@ public class TriPeaksGame : MonoBehaviour
 
 	public void AddExtraCards()
 	{
+		if (paused) return;
+		
 		if (DataManager.Instance.Coins < costForAddExtraCards)
 		{
 			// TODO: Add method to purchase coins.
@@ -414,6 +422,8 @@ public class TriPeaksGame : MonoBehaviour
 
 	public void AddExtraTime()
 	{
+		if (paused) return;
+		
 		if (DataManager.Instance.Coins < costForAddExtraTime)
 		{
 			// TODO: Add method to purchase coins.
