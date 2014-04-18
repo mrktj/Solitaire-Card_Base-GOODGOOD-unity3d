@@ -1828,6 +1828,7 @@ MonoBehaviour:
   winCardRemainingScoreLabel: {fileID: 11400052}
   winTimeRemainingScoreLabel: {fileID: 11400024}
   winTotalScoreLabel: {fileID: 11400050}
+  winCoinsCollectedLabel: {fileID: 11400036}
   loseScreen: {fileID: 100000}
   loseTotalScoreLabel: {fileID: 11400022}
 --- !u!114 &11400046

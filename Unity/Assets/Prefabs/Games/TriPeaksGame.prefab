@@ -10055,7 +10055,9 @@ MonoBehaviour:
   pointsPerCardTakenFromBoard: 10
   pointsPerCardRemainingInDeck: 20
   pointsPerSecondsRemaining: 5
-  coinsPerCard: 10
+  coinsPerCardTakenFromBoard: 10
+  coinsPerCardRemainingInDeck: 20
+  coinsPerSecondsRemaining: 5
   cardsForExtraLife: 5
   extraCardsPowerup: 5
   extraTimePowerup: 20

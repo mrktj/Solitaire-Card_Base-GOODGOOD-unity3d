@@ -9,7 +9,9 @@ public class TriPeaksGame : MonoBehaviour
 	[SerializeField] int pointsPerCardTakenFromBoard;
 	[SerializeField] int pointsPerCardRemainingInDeck;
 	[SerializeField] int pointsPerSecondsRemaining;
-	[SerializeField] int coinsPerCard;
+	[SerializeField] int coinsPerCardTakenFromBoard;
+	[SerializeField] int coinsPerCardRemainingInDeck;
+	[SerializeField] int coinsPerSecondsRemaining;
 	[SerializeField] int cardsForExtraLife;
 	[SerializeField] int extraCardsPowerup;
 	[SerializeField] float extraTimePowerup;
@@ -46,6 +48,7 @@ public class TriPeaksGame : MonoBehaviour
 	int round = 1;
 	int lives = 0;
 	float timeRemaining = 0;
+	int coinsCollected = 0;
 	bool successfulRound = false;
 
 	class Action
@@ -229,8 +232,12 @@ public class TriPeaksGame : MonoBehaviour
 		int deckScore = successfulRound ? deck.Size * pointsPerCardRemainingInDeck : 0;
 		int timeScore = successfulRound ? Mathf.FloorToInt(timeRemaining) * pointsPerSecondsRemaining : 0;
 		int totalScore = score + deckScore + timeScore;
-		resultsPanel.Setup(successfulRound, score, deckScore, timeScore, totalScore);
+		int deckCoins = successfulRound ? deck.Size * coinsPerCardRemainingInDeck : 0;
+		int timeCoins = successfulRound ? Mathf.FloorToInt(timeRemaining) * coinsPerSecondsRemaining : 0;
+		int totalCoins = coinsCollected + deckCoins + timeCoins;
+		resultsPanel.Setup(successfulRound, score, deckScore, timeScore, totalScore, coinsCollected, deckCoins, timeCoins, totalCoins);
 		score = totalScore;
+		coinsCollected = 0;
 
 		if (score > DataManager.Instance.HighScore)
 		{
@@ -326,7 +333,7 @@ public class TriPeaksGame : MonoBehaviour
 			ReturnCardToSlot(action.slot);
 			RefreshBoard();
 			score -= pointsPerCardTakenFromBoard;
-			DataManager.Instance.Coins -= coinsPerCard;
+			DataManager.Instance.Coins -= coinsPerCardTakenFromBoard;
 		}
 	}
 
@@ -515,7 +522,8 @@ public class TriPeaksGame : MonoBehaviour
 				RefreshBoard();
 				AddToUndoHistory(Action.Move.RemoveCardFromSlot, slot);
 				score += pointsPerCardTakenFromBoard;
-				DataManager.Instance.Coins += coinsPerCard;
+				DataManager.Instance.Coins += coinsPerCardTakenFromBoard;
+				coinsCollected += coinsPerCardTakenFromBoard;
 				return;
 			}
 		}

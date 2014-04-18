@@ -9,10 +9,11 @@ public class ResultsPanel : MonoBehaviour
 	[SerializeField] UILabel winCardRemainingScoreLabel;
 	[SerializeField] UILabel winTimeRemainingScoreLabel;
 	[SerializeField] UILabel winTotalScoreLabel;
+	[SerializeField] UILabel winCoinsCollectedLabel;
 	[SerializeField] GameObject loseScreen;
 	[SerializeField] UILabel loseTotalScoreLabel;
 	
-	public void Setup(bool won, int baseScore, int deckScore, int timeScore, int totalScore)
+	public void Setup(bool won, int baseScore, int deckScore, int timeScore, int totalScore, int coinsCollected, int deckCoins, int timeCoins, int totalCoins)
 	{
 		NGUITools.SetActive(winScreen, won);
 		NGUITools.SetActive(loseScreen, !won);
@@ -21,6 +22,7 @@ public class ResultsPanel : MonoBehaviour
 		winCardRemainingScoreLabel.text = deckScore.ToString();
 		winTimeRemainingScoreLabel.text = timeScore.ToString();
 		winTotalScoreLabel.text = totalScore.ToString();
+		winCoinsCollectedLabel.text = totalCoins.ToString();
 
 		loseTotalScoreLabel.text = totalScore.ToString();
 	}
