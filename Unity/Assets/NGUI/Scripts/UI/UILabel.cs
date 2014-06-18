@@ -76,6 +76,7 @@ public class UILabel : UIWidget
 	[HideInInspector][SerializeField] bool mMultiline = true;
 
 #if DYNAMIC_FONT
+	[System.NonSerialized]
 	Font mActiveTTF = null;
 	float mDensity = 1f;
 #endif
@@ -251,14 +252,14 @@ public class UILabel : UIWidget
 				if (!string.IsNullOrEmpty(mText))
 				{
 					mText = "";
-					shouldBeProcessed = true;
+					MarkAsChanged();
 					ProcessAndRequest();
 				}
 			}
 			else if (mText != value)
 			{
 				mText = value;
-				shouldBeProcessed = true;
+				MarkAsChanged();
 				ProcessAndRequest();
 			}
 
@@ -900,8 +901,7 @@ public class UILabel : UIWidget
 		mMaxLineHeight = 0;
 		mShrinkToFit = false;
 
-		if (GetComponent<BoxCollider>() != null)
-			NGUITools.AddWidgetCollider(gameObject, true);
+		NGUITools.UpdateWidgetCollider(gameObject, true);
 	}
 
 	/// <summary>
@@ -930,7 +930,7 @@ public class UILabel : UIWidget
 	void ProcessAndRequest ()
 	{
 #if UNITY_EDITOR
-		if (!NGUITools.GetActive(this)) return;
+		if (!Application.isPlaying && !NGUITools.GetActive(this)) return;
 		if (!mAllowProcessing) return;
 #endif
 		if (ambigiousFont != null) ProcessText();
@@ -1028,7 +1028,7 @@ public class UILabel : UIWidget
 	/// Process the raw text, called when something changes.
 	/// </summary>
 
-	void ProcessText () { ProcessText(false, true); }
+	public void ProcessText () { ProcessText(false, true); }
 
 	/// <summary>
 	/// Process the raw text, called when something changes.
@@ -1141,6 +1141,12 @@ public class UILabel : UIWidget
 			mProcessedText = "";
 			mScale = 1f;
 		}
+		
+		if (full)
+		{
+			NGUIText.bitmapFont = null;
+			NGUIText.dynamicFont = null;
+		}
 	}
 
 	/// <summary>
@@ -1169,9 +1175,10 @@ public class UILabel : UIWidget
 				int h = height;
 
 				Overflow over = mOverflow;
-				mOverflow = Overflow.ShrinkContent;
-				mWidth = 100000;
+				if (over != Overflow.ResizeHeight) mWidth = 100000;
 				mHeight = 100000;
+
+				mOverflow = Overflow.ShrinkContent;
 				ProcessText(false, true);
 				mOverflow = over;
 
@@ -1251,8 +1258,14 @@ public class UILabel : UIWidget
 
 				mTempVerts.Clear();
 				mTempIndices.Clear();
+
+				NGUIText.bitmapFont = null;
+				NGUIText.dynamicFont = null;
 				return retVal;
 			}
+
+			NGUIText.bitmapFont = null;
+			NGUIText.dynamicFont = null;
 		}
 		return 0;
 	}
@@ -1283,8 +1296,13 @@ public class UILabel : UIWidget
 
 			if (linkStart != linkEnd)
 			{
-				string word = mText.Substring(linkStart, linkEnd - linkStart);
-				return NGUIText.StripSymbols(word);
+				int len = linkEnd - linkStart;
+
+				if (len > 0)
+				{
+					string word = mText.Substring(linkStart, len);
+					return NGUIText.StripSymbols(word);
+				}
 			}
 		}
 		return null;
@@ -1316,13 +1334,7 @@ public class UILabel : UIWidget
 			{
 				linkStart += 5;
 				int linkEnd = mText.IndexOf("]", linkStart);
-
-				if (linkEnd != -1)
-				{
-					int closingStatement = mText.IndexOf("[/url]", linkEnd);
-					if (closingStatement == -1 || closingStatement >= characterIndex)
-						return mText.Substring(linkStart, linkEnd - linkStart);
-				}
+				if (linkEnd != -1) return mText.Substring(linkStart, linkEnd - linkStart);
 			}
 		}
 		return null;
@@ -1373,6 +1385,9 @@ public class UILabel : UIWidget
 				mTempVerts.Clear();
 				mTempIndices.Clear();
 			}
+
+			NGUIText.bitmapFont = null;
+			NGUIText.dynamicFont = null;
 
 			// If the selection doesn't move, then we're at the top or bottom-most line
 			if (key == KeyCode.UpArrow || key == KeyCode.Home) return 0;
@@ -1428,6 +1443,9 @@ public class UILabel : UIWidget
 			caret.uvs.Add(center);
 			caret.cols.Add(cc);
 		}
+
+		NGUIText.bitmapFont = null;
+		NGUIText.dynamicFont = null;
 	}
 
 	/// <summary>
@@ -1451,6 +1469,8 @@ public class UILabel : UIWidget
 
 		NGUIText.tint = col;
 		NGUIText.Print(text, verts, uvs, cols);
+		NGUIText.bitmapFont = null;
+		NGUIText.dynamicFont = null;
 
 		// Center the content within the label vertically
 		Vector2 pos = ApplyOffset(verts, start);
@@ -1540,7 +1560,19 @@ public class UILabel : UIWidget
 			v.x += x;
 			v.y += y;
 			verts.buffer[i] = v;
-			cols.buffer[i] = col;
+
+			Color32 uc = cols.buffer[i];
+
+			if (uc.a == 255)
+			{
+				cols.buffer[i] = col;
+			}
+			else
+			{
+				Color fc = c;
+				fc.a = (uc.a / 255f * c.a);
+				cols.buffer[i] = (bitmapFont != null && bitmapFont.premultipliedAlphaShader) ? NGUITools.ApplyPMA(fc) : fc;
+			}
 		}
 	}
 
@@ -1553,7 +1585,10 @@ public class UILabel : UIWidget
 		UpdateNGUIText();
 		NGUIText.encoding = false;
 		NGUIText.symbolStyle = NGUIText.SymbolStyle.None;
-		return NGUIText.CalculateOffsetToFit(text);
+		int offset = NGUIText.CalculateOffsetToFit(text);
+		NGUIText.bitmapFont = null;
+		NGUIText.dynamicFont = null;
+		return offset;
 	}
 
 	/// <summary>
@@ -1606,7 +1641,11 @@ public class UILabel : UIWidget
 	public bool Wrap (string text, out string final, int height)
 	{
 		UpdateNGUIText();
-		return NGUIText.WrapText(text, out final);
+		NGUIText.rectHeight = height;
+		bool retVal = NGUIText.WrapText(text, out final);
+		NGUIText.bitmapFont = null;
+		NGUIText.dynamicFont = null;
+		return retVal;
 	}
 
 	/// <summary>

@@ -56,8 +56,12 @@ public class UICenterOnChild : MonoBehaviour
 	/// Recenter the draggable list on the center-most child.
 	/// </summary>
 
+	[ContextMenu("Execute")]
 	public void Recenter ()
 	{
+		Transform trans = transform;
+		if (trans.childCount == 0) return;
+
 		if (mScrollView == null)
 		{
 			mScrollView = NGUITools.FindInParents<UIScrollView>(gameObject);
@@ -91,13 +95,13 @@ public class UICenterOnChild : MonoBehaviour
 
 		float min = float.MaxValue;
 		Transform closest = null;
-		Transform trans = transform;
 		int index = 0;
 
 		// Determine the closest child
 		for (int i = 0, imax = trans.childCount; i < imax; ++i)
 		{
 			Transform t = trans.GetChild(i);
+			if (!t.gameObject.activeInHierarchy) continue;
 			float sqrDist = Vector3.SqrMagnitude(t.position - pickingPoint);
 
 			if (sqrDist < min)
@@ -177,6 +181,18 @@ public class UICenterOnChild : MonoBehaviour
 			localOffset.z = 0f;
 
 			// Spring the panel to this calculated position
+#if UNITY_EDITOR
+			if (!Application.isPlaying)
+			{
+				panelTrans.localPosition = panelTrans.localPosition - localOffset;
+
+				Vector4 co = mScrollView.panel.clipOffset;
+				co.x += localOffset.x;
+				co.y += localOffset.y;
+				mScrollView.panel.clipOffset = co;
+			}
+			else
+#endif
 			SpringPanel.Begin(mScrollView.panel.cachedGameObject,
 				panelTrans.localPosition - localOffset, springStrength).onFinished = onFinished;
 		}
