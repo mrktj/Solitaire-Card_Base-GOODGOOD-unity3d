@@ -14,8 +14,8 @@ using System.Collections.Generic;
 /// 
 /// * OnHover (isOver) is sent when the mouse hovers over a collider or moves away.
 /// * OnPress (isDown) is sent when a mouse button gets pressed on the collider.
-/// * OnSelect (selected) is sent when a mouse button is released on the same object as it was pressed on.
-/// * OnClick () is sent with the same conditions as OnSelect, with the added check to see if the mouse has not moved much.
+/// * OnSelect (selected) is sent when a mouse button is first pressed on an object. Repeated presses won't result in an OnSelect(true).
+/// * OnClick () is sent when a mouse is pressed and released on the same object.
 ///   UICamera.currentTouchID tells you which button was clicked.
 /// * OnDoubleClick () is sent when the click happens twice within a fourth of a second.
 ///   UICamera.currentTouchID tells you which button was clicked.
@@ -88,10 +88,8 @@ public class UICamera : MonoBehaviour
 	{
 		World_3D,	// Perform a Physics.Raycast and sort by distance to the point that was hit.
 		UI_3D,		// Perform a Physics.Raycast and sort by widget depth.
-#if !UNITY_3_5 && !UNITY_4_0 && !UNITY_4_1 && !UNITY_4_2
 		World_2D,	// Perform a Physics2D.OverlapPoint
 		UI_2D,		// Physics2D.OverlapPoint then sort by widget depth
-#endif
 	}
 
 	/// <summary>
@@ -561,6 +559,7 @@ public class UICamera : MonoBehaviour
 	{
 		public int depth;
 		public RaycastHit hit;
+		public Vector3 point;
 		public GameObject go;
 	}
 
@@ -632,6 +631,7 @@ public class UICamera : MonoBehaviour
 						if (mHit.depth != int.MaxValue)
 						{
 							mHit.hit = hits[b];
+							mHit.point = hits[b].point;
 							mHit.go = hits[b].collider.gameObject;
 							mHits.Add(mHit);
 						}
@@ -649,7 +649,7 @@ public class UICamera : MonoBehaviour
 						{
 							lastHit = mHits[b].hit;
 							hoveredObject = mHits[b].go;
-							lastWorldPosition = hits[b].point;
+							lastWorldPosition = mHits[b].point;
 							mHits.Clear();
 							return true;
 						}
@@ -682,7 +682,6 @@ public class UICamera : MonoBehaviour
 				}
 				continue;
 			}
-#if !UNITY_3_5 && !UNITY_4_0 && !UNITY_4_1 && !UNITY_4_2
 			else if (cam.eventType == EventType.World_2D)
 			{
 				if (m2DPlane.Raycast(ray, out dist))
@@ -729,6 +728,7 @@ public class UICamera : MonoBehaviour
 							if (mHit.depth != int.MaxValue)
 							{
 								mHit.go = go;
+								mHit.point = lastWorldPosition;
 								mHits.Add(mHit);
 							}
 						}
@@ -775,14 +775,11 @@ public class UICamera : MonoBehaviour
 				}
 				continue;
 			}
-#endif
 		}
 		return false;
 	}
 
-#if !UNITY_3_5 && !UNITY_4_0 && !UNITY_4_1 && !UNITY_4_2
 	static Plane m2DPlane = new Plane(Vector3.back, 0f);
-#endif
 
 	/// <summary>
 	/// Helper function to check if the specified hit is visible by the panel.
@@ -814,7 +811,7 @@ public class UICamera : MonoBehaviour
 
 		while (panel != null)
 		{
-			if (!panel.IsVisible(de.hit.point)) return false;
+			if (!panel.IsVisible(de.point)) return false;
 			panel = panel.parentPanel;
 		}
 		return true;
@@ -966,13 +963,11 @@ public class UICamera : MonoBehaviour
 
 		if (Application.platform == RuntimePlatform.Android ||
 			Application.platform == RuntimePlatform.IPhonePlayer
-#if !UNITY_3_5 && !UNITY_4_0 && !UNITY_4_1
 			|| Application.platform == RuntimePlatform.WP8Player
-#if UNITY_4_0 || UNITY_4_1 || UNITY_4_2 || UNITY_4_3
+#if UNITY_4_3
 			|| Application.platform == RuntimePlatform.BB10Player
 #else
 			|| Application.platform == RuntimePlatform.BlackBerryPlayer
-#endif
 #endif
 			)
 		{

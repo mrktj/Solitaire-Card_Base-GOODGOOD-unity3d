@@ -121,36 +121,36 @@ static public class NGUITools
 	/// New WWW call can fail if the crossdomain policy doesn't check out. Exceptions suck. It's much more elegant to check for null instead.
 	/// </summary>
 
-	static public WWW OpenURL (string url)
-	{
-#if UNITY_FLASH
-		Debug.LogError("WWW is not yet implemented in Flash");
-		return null;
-#else
-		WWW www = null;
-		try { www = new WWW(url); }
-		catch (System.Exception ex) { Debug.LogError(ex.Message); }
-		return www;
-#endif
-	}
+//    static public WWW OpenURL (string url)
+//    {
+//#if UNITY_FLASH
+//        Debug.LogError("WWW is not yet implemented in Flash");
+//        return null;
+//#else
+//        WWW www = null;
+//        try { www = new WWW(url); }
+//        catch (System.Exception ex) { Debug.LogError(ex.Message); }
+//        return www;
+//#endif
+//    }
 
-	/// <summary>
-	/// New WWW call can fail if the crossdomain policy doesn't check out. Exceptions suck. It's much more elegant to check for null instead.
-	/// </summary>
+//    /// <summary>
+//    /// New WWW call can fail if the crossdomain policy doesn't check out. Exceptions suck. It's much more elegant to check for null instead.
+//    /// </summary>
 
-	static public WWW OpenURL (string url, WWWForm form)
-	{
-		if (form == null) return OpenURL(url);
-#if UNITY_FLASH
-		Debug.LogError("WWW is not yet implemented in Flash");
-		return null;
-#else
-		WWW www = null;
-		try { www = new WWW(url, form); }
-		catch (System.Exception ex) { Debug.LogError(ex != null ? ex.Message : "<null>"); }
-		return www;
-#endif
-	}
+//    static public WWW OpenURL (string url, WWWForm form)
+//    {
+//        if (form == null) return OpenURL(url);
+//#if UNITY_FLASH
+//        Debug.LogError("WWW is not yet implemented in Flash");
+//        return null;
+//#else
+//        WWW www = null;
+//        try { www = new WWW(url, form); }
+//        catch (System.Exception ex) { Debug.LogError(ex != null ? ex.Message : "<null>"); }
+//        return www;
+//#endif
+//    }
 
 	/// <summary>
 	/// Same as Random.Range, but the returned value is between min and max, inclusive.
@@ -210,12 +210,17 @@ static public class NGUITools
 		cam = Camera.main;
 		if (cam && (cam.cullingMask & layerMask) != 0) return cam;
 
+#if UNITY_4_3
 		Camera[] cameras = NGUITools.FindActive<Camera>();
-
 		for (int i = 0, imax = cameras.Length; i < imax; ++i)
+#else
+		Camera[] cameras = new Camera[Camera.allCamerasCount];
+		int camerasFound = Camera.GetAllCameras(cameras);
+		for (int i = 0; i < camerasFound; ++i)
+#endif
 		{
 			cam = cameras[i];
-			if (cam && (cam.cullingMask & layerMask) != 0)
+			if (cam && cam.enabled && (cam.cullingMask & layerMask) != 0)
 				return cam;
 		}
 		return null;
@@ -248,7 +253,6 @@ static public class NGUITools
 			// Is there already another collider present? If so, do nothing.
 			if (col != null) return;
 
-#if !UNITY_4_0 && !UNITY_4_1 && !UNITY_4_2
 			// 2D collider
 			BoxCollider2D box2 = go.GetComponent<BoxCollider2D>();
 
@@ -273,10 +277,9 @@ static public class NGUITools
 				return;
 			}
 			else
-#endif
 			{
 				box = go.AddComponent<BoxCollider>();
-#if !UNITY_3_5 && UNITY_EDITOR
+#if UNITY_EDITOR
 				UnityEditor.Undo.RegisterCreatedObjectUndo(box, "Add Collider");
 #endif
 				box.isTrigger = true;
@@ -313,10 +316,8 @@ static public class NGUITools
 				UpdateWidgetCollider(bc, considerInactive);
 				return;
 			}
-#if !UNITY_4_0 && !UNITY_4_1 && !UNITY_4_2
 			BoxCollider2D box2 = go.GetComponent<BoxCollider2D>();
 			if (box2 != null) UpdateWidgetCollider(box2, considerInactive);
-#endif
 		}
 	}
 
@@ -1368,7 +1369,11 @@ static public class NGUITools
 
 	static public T AddMissingComponent<T> (this GameObject go) where T : Component
 	{
+#if UNITY_FLASH
+		object comp = go.GetComponent<T>();
+#else
 		T comp = go.GetComponent<T>();
+#endif
 		if (comp == null)
 		{
 #if UNITY_EDITOR
@@ -1377,7 +1382,11 @@ static public class NGUITools
 #endif
 			comp = go.AddComponent<T>();
 		}
+#if UNITY_FLASH
+		return (T)comp;
+#else
 		return comp;
+#endif
 	}
 
 	// Temporary variable to avoid GC allocation
@@ -1416,10 +1425,28 @@ static public class NGUITools
 
 	static public Vector3[] GetSides (this Camera cam, float depth, Transform relativeTo)
 	{
-		mSides[0] = cam.ViewportToWorldPoint(new Vector3(0f, 0.5f, depth));
-		mSides[1] = cam.ViewportToWorldPoint(new Vector3(0.5f, 1f, depth));
-		mSides[2] = cam.ViewportToWorldPoint(new Vector3(1f, 0.5f, depth));
-		mSides[3] = cam.ViewportToWorldPoint(new Vector3(0.5f, 0f, depth));
+		Rect rect = cam.rect;
+		Vector2 size = screenSize;
+
+		float x0 = -0.5f;
+		float x1 = 0.5f;
+		float y0 = -0.5f;
+		float y1 = 0.5f;
+
+		float aspect = rect.width / rect.height;
+		x0 *= aspect;
+		x1 *= aspect;
+
+		x0 *= size.x;
+		x1 *= size.x;
+		y0 *= size.y;
+		y1 *= size.y;
+
+		Transform t = cam.transform;
+		mSides[0] = t.TransformPoint(new Vector3(x0, 0f, depth));
+		mSides[1] = t.TransformPoint(new Vector3(0f, y1, depth));
+		mSides[2] = t.TransformPoint(new Vector3(x1, 0f, depth));
+		mSides[3] = t.TransformPoint(new Vector3(0f, y0, depth));
 
 		if (relativeTo != null)
 		{
@@ -1462,10 +1489,28 @@ static public class NGUITools
 
 	static public Vector3[] GetWorldCorners (this Camera cam, float depth, Transform relativeTo)
 	{
-		mSides[0] = cam.ViewportToWorldPoint(new Vector3(0f, 0f, depth));
-		mSides[1] = cam.ViewportToWorldPoint(new Vector3(0f, 1f, depth));
-		mSides[2] = cam.ViewportToWorldPoint(new Vector3(1f, 1f, depth));
-		mSides[3] = cam.ViewportToWorldPoint(new Vector3(1f, 0f, depth));
+		Rect rect = cam.rect;
+		Vector2 size = screenSize;
+
+		float x0 = -0.5f;
+		float x1 = 0.5f;
+		float y0 = -0.5f;
+		float y1 = 0.5f;
+
+		float aspect = rect.width / rect.height;
+		x0 *= aspect;
+		x1 *= aspect;
+
+		x0 *= size.x;
+		x1 *= size.x;
+		y0 *= size.y;
+		y1 *= size.y;
+
+		Transform t = cam.transform;
+		mSides[0] = t.TransformPoint(new Vector3(x0, y0, depth));
+		mSides[1] = t.TransformPoint(new Vector3(x0, y1, depth));
+		mSides[2] = t.TransformPoint(new Vector3(x1, y1, depth));
+		mSides[3] = t.TransformPoint(new Vector3(x1, y0, depth));
 
 		if (relativeTo != null)
 		{
@@ -1488,6 +1533,7 @@ static public class NGUITools
 		return string.IsNullOrEmpty(method) ? type : type + "/" + method;
 	}
 
+#if UNITY_EDITOR || !UNITY_FLASH
 	/// <summary>
 	/// Execute the specified function on the target game object.
 	/// </summary>
@@ -1532,4 +1578,43 @@ static public class NGUITools
 		ExecuteAll<UIPanel>(root, "Update");
 		ExecuteAll<UIPanel>(root, "LateUpdate");
 	}
+#endif
+
+#if UNITY_EDITOR
+	static int mSizeFrame = -1;
+	static System.Reflection.MethodInfo s_GetSizeOfMainGameView;
+	static Vector2 mGameSize = Vector2.one;
+
+	/// <summary>
+	/// Size of the game view cannot be retrieved from Screen.width and Screen.height when the game view is hidden.
+	/// </summary>
+
+	static public Vector2 screenSize
+	{
+		get
+		{
+			int frame = Time.frameCount;
+
+			if (mSizeFrame != frame || !Application.isPlaying)
+			{
+				mSizeFrame = frame;
+
+				if (s_GetSizeOfMainGameView == null)
+				{
+					System.Type type = System.Type.GetType("UnityEditor.GameView,UnityEditor");
+					s_GetSizeOfMainGameView = type.GetMethod("GetSizeOfMainGameView",
+						System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+				}
+				mGameSize = (Vector2)s_GetSizeOfMainGameView.Invoke(null, null);
+			}
+			return mGameSize;
+		}
+	}
+#else
+	/// <summary>
+	/// Size of the game view cannot be retrieved from Screen.width and Screen.height when the game view is hidden.
+	/// </summary>
+
+	static public Vector2 screenSize { get { return new Vector2(Screen.width, Screen.height); } }
+#endif
 }

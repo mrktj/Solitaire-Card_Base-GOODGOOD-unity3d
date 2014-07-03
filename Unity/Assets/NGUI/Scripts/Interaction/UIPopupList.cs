@@ -768,6 +768,7 @@ public class UIPopupList : UIWidgetContainer
 			{
 				UILabel lbl = labels[i];
 				NGUITools.AddWidgetCollider(lbl.gameObject);
+				lbl.autoResizeBoxCollider = false;
 				BoxCollider bc = lbl.GetComponent<BoxCollider>();
 
 				if (bc != null)
@@ -776,14 +777,12 @@ public class UIPopupList : UIWidgetContainer
 					bc.center = bcCenter;
 					bc.size = bcSize;
 				}
-#if !UNITY_4_0 && !UNITY_4_1 && !UNITY_4_2
 				else
 				{
 					BoxCollider2D b2d = lbl.GetComponent<BoxCollider2D>();
 					b2d.center = bcCenter;
 					b2d.size = bcSize;
 				}
-#endif
 			}
 
 			int lblWidth = Mathf.RoundToInt(x);
