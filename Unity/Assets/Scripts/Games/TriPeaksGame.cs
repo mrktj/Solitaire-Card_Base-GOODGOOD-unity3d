@@ -85,14 +85,23 @@ public class TriPeaksGame : MonoBehaviour
 	void Update()
 	{
 #if UNITY_EDITOR
+		if (Application.isPlaying)
+#endif
+		{
+			if (!paused)
+			{
+				UpdateGame();
+			}
+
+			UpdateUI();
+		}
+
+#if UNITY_EDITOR
 		if (Application.isPlaying && !paused)
 #else
 		if (!paused)
 #endif
 		{
-			UpdateGame();
-			UpdateUI();
-
 			if (endGame)
 			{
 				endGame = false;
