@@ -160,7 +160,8 @@ public class Card : MonoBehaviour
 
 	public void MoveToPosition(Vector3 movePosition)
 	{
-		transform.localPosition = movePosition;
+		transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y, movePosition.z);
+		TweenPosition.Begin(gameObject, 0.25f, movePosition);
 	}
 
 	public bool Revealed

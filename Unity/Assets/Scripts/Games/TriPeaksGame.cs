@@ -65,6 +65,8 @@ public class TriPeaksGame : MonoBehaviour
 
 	List<Action> undoHistory = new List<Action>();
 
+	const float ANIMATION_STAGGER_DURATION = 0.1f;
+
 	void Awake()
 	{
 		timeRemaining = timePerRound;
@@ -176,15 +178,25 @@ public class TriPeaksGame : MonoBehaviour
 
 	void DealBoard()
 	{
-		deck.Shuffle();
+		StartCoroutine(AnimateDealBoard());
+	}
 
+	IEnumerator AnimateDealBoard()
+	{
+		paused = true;
+
+		deck.Shuffle();
+		
 		for (int i = 0, iMax = board.Size; i < iMax && deck.Size > 0; i++)
 		{
 			DealCardToSlot(board[i]);
+			yield return new WaitForSeconds(ANIMATION_STAGGER_DURATION);
 		}
-
+		
 		RefreshBoard();
 		RevealNextCard();
+
+		paused = false;
 	}
 
 	void RefreshBoard()
@@ -358,25 +370,36 @@ public class TriPeaksGame : MonoBehaviour
 		
 		DataManager.Instance.Coins -= costForShuffleBoard;
 
-		List<Slot> untouchedSlots = new List<Slot>();
+		StartCoroutine(AnimateShuffleBoard());
+	}
 
-		for (int i = 0, iMax = board.Size; i < iMax; i++)
+	IEnumerator AnimateShuffleBoard()
+	{
+		paused = true;
+
+		List<Slot> untouchedSlots = new List<Slot>();
+		
+		for (int i = board.Size - 1; i >= 0; i--)
 		{
 			if (board[i].Card != null)
 			{
 				untouchedSlots.Add(board[i]);
 				ReturnCardFromSlot(board[i]);
+				yield return new WaitForSeconds(ANIMATION_STAGGER_DURATION);
 			}
 		}
-
+		
 		deck.Shuffle();
-
-		for (int i = 0, iMax = untouchedSlots.Count; i < iMax; i++)
+		
+		for (int i = untouchedSlots.Count - 1; i >= 0; i--)
 		{
 			DealCardToSlot(untouchedSlots[i]);
+			yield return new WaitForSeconds(ANIMATION_STAGGER_DURATION);
 		}
-
+		
 		RefreshBoard();
+
+		paused = false;
 	}
 
 	public void GenerateWildCard()
