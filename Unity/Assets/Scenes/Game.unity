@@ -4444,7 +4444,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e47e7b18a8c347308d356938535fb37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  game: {fileID: 1252056598}
   winScreen: {fileID: 883426863}
   winRoundScoreLabel: {fileID: 948137222}
   winCardRemainingScoreLabel: {fileID: 716319457}
@@ -13573,6 +13572,7 @@ GameObject:
   serializedVersion: 4
   m_Component:
   - 4: {fileID: 1110161783}
+  - 114: {fileID: 1110161787}
   - 114: {fileID: 1110161786}
   - 114: {fileID: 1110161785}
   - 54: {fileID: 1110161784}
@@ -13677,6 +13677,25 @@ MonoBehaviour:
   maximumHeight: 768
   adjustByDPI: 0
   shrinkPortraitUI: 0
+--- !u!114 &1110161787
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1110161782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da84d18ffb7324d4692bd450c702f7ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  game: {fileID: 1252056598}
+  roundLabel: {fileID: 1689802554}
+  timeLabel: {fileID: 352219862}
+  scoreLabel: {fileID: 385700661}
+  coinsLabel: {fileID: 1533695582}
+  livesSprite: {fileID: 1642826230}
+  endGameButton: {fileID: 1813197569}
+  resultsPanel: {fileID: 330301675}
 --- !u!1 &1117368944
 GameObject:
   m_ObjectHideFlags: 0
@@ -14981,13 +15000,6 @@ MonoBehaviour:
   deck: {fileID: 892279499}
   board: {fileID: 99219138}
   waste: {fileID: 1424327600}
-  roundLabel: {fileID: 1689802554}
-  timeLabel: {fileID: 352219862}
-  scoreLabel: {fileID: 385700661}
-  coinsLabel: {fileID: 1533695582}
-  livesSprite: {fileID: 1642826230}
-  resultsPanel: {fileID: 330301675}
-  endGameButton: {fileID: 1813197569}
   paused: 0
   endGame: 0
   restartGame: 0

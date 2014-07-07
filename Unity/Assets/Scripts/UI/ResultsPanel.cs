@@ -3,7 +3,8 @@ using System.Collections;
 
 public class ResultsPanel : MonoBehaviour
 {
-	[SerializeField] TriPeaksGame game;
+	[System.NonSerialized] public TriPeaksGame game;
+
 	[SerializeField] GameObject winScreen;
 	[SerializeField] UILabel winRoundScoreLabel;
 	[SerializeField] UILabel winCardRemainingScoreLabel;

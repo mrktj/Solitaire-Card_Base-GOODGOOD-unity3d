@@ -5,6 +5,13 @@ using System.Collections.Generic;
 [ExecuteInEditMode]
 public class TriPeaksGame : MonoBehaviour
 {
+	#region Event Handlers
+
+	public delegate void EndOfGameDelegate(bool won, int baseScore, int deckScore, int timeScore, int totalScore, int coinsCollected, int deckCoins, int timeCoins, int totalCoins);
+	public event EndOfGameDelegate OnEndOfGame;
+
+	#endregion
+
 	[SerializeField] float timePerRound;
 	[SerializeField] int pointsPerCardTakenFromBoard;
 	[SerializeField] int pointsPerCardRemainingInDeck;
@@ -24,13 +31,6 @@ public class TriPeaksGame : MonoBehaviour
 	[SerializeField] Deck deck;
 	[SerializeField] Board board;
 	[SerializeField] Waste waste;
-	[SerializeField] UILabel roundLabel;
-	[SerializeField] UILabel timeLabel;
-	[SerializeField] UILabel scoreLabel;
-	[SerializeField] UILabel coinsLabel;
-	[SerializeField] UISprite livesSprite;
-	[SerializeField] ResultsPanel resultsPanel;
-	[SerializeField] GameObject endGameButton;
 
 	public bool paused = false;
 	public bool endGame = false;
@@ -85,23 +85,13 @@ public class TriPeaksGame : MonoBehaviour
 	void Update()
 	{
 #if UNITY_EDITOR
-		if (Application.isPlaying)
-#endif
-		{
-			if (!paused)
-			{
-				UpdateGame();
-			}
-
-			UpdateUI();
-		}
-
-#if UNITY_EDITOR
 		if (Application.isPlaying && !paused)
 #else
 		if (!paused)
 #endif
 		{
+			UpdateGame();
+
 			if (endGame)
 			{
 				endGame = false;
@@ -175,16 +165,6 @@ public class TriPeaksGame : MonoBehaviour
 		}
 	}
 
-	void UpdateUI()
-	{
-		roundLabel.text = round.ToString();
-		timeLabel.text = Mathf.Floor(timeRemaining).ToString();
-		scoreLabel.text = score.ToString();
-		coinsLabel.text = DataManager.Instance.Coins.ToString();
-		livesSprite.width = livesSprite.atlas.GetSprite(livesSprite.spriteName).width * lives;
-		NGUITools.SetActive(endGameButton, deck.Size == 0);
-	}
-
 	void DealBoard()
 	{
 		StartCoroutine(AnimateDealBoard());
@@ -243,10 +223,49 @@ public class TriPeaksGame : MonoBehaviour
 		}
 	}
 
+	public int Round
+	{
+		get
+		{
+			return round;
+		}
+	}
+
+	public float TimeRemaining
+	{
+		get
+		{
+			return timeRemaining;
+		}
+	}
+
+	public int Score
+	{
+		get
+		{
+			return score;
+		}
+	}
+
+	public int Lives
+	{
+		get
+		{
+			return lives;
+		}
+	}
+
+	public int DeckSize
+	{
+		get
+		{
+			return deck.Size;
+		}
+	}
+
 	void EndGame()
 	{
 		paused = true;
-		resultsPanel.Toggle(true);
 
 		if (successfulRound && deck.Size >= cardsForExtraLife) lives++;
 
@@ -256,7 +275,9 @@ public class TriPeaksGame : MonoBehaviour
 		int deckCoins = successfulRound ? deck.Size * coinsPerCardRemainingInDeck : 0;
 		int timeCoins = successfulRound ? Mathf.FloorToInt(timeRemaining) * coinsPerSecondsRemaining : 0;
 		int totalCoins = coinsCollected + deckCoins + timeCoins;
-		resultsPanel.Setup(successfulRound, score, deckScore, timeScore, totalScore, coinsCollected, deckCoins, timeCoins, totalCoins);
+
+		if (OnEndOfGame != null) OnEndOfGame(successfulRound, score, deckScore, timeScore, totalScore, coinsCollected, deckCoins, timeCoins, totalCoins);
+
 		score = totalScore;
 		coinsCollected = 0;
 
@@ -327,11 +348,21 @@ public class TriPeaksGame : MonoBehaviour
 		undoHistory.Add(action);
 	}
 
+	public bool CanUndo
+	{
+		get
+		{
+			if (paused) return false;
+
+			if (undoHistory.Count == 0) return false;
+
+			return true;
+		}
+	}
+
 	public void UndoLastMove()
 	{
-		if (paused) return;
-		
-		if (undoHistory.Count == 0) return;
+		if (!CanUndo) return;
 
 		if (DataManager.Instance.Coins < costForUndoLastMove)
 		{
