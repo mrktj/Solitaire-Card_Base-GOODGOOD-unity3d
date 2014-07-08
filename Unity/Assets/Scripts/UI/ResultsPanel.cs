@@ -1,9 +1,9 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class ResultsPanel : MonoBehaviour
 {
-	[System.NonSerialized] public TriPeaksGame game;
+	[System.NonSerialized] public SolitaireGame game;
 
 	[SerializeField] GameObject winScreen;
 	[SerializeField] UILabel winRoundScoreLabel;

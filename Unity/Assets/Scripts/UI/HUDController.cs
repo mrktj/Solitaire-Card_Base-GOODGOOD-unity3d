@@ -1,8 +1,8 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class HUDController : MonoBehaviour
 {
-	[SerializeField] TriPeaksGame game;
+	[SerializeField] SolitaireGame game;
 	[SerializeField] UILabel roundLabel;
 	[SerializeField] UILabel timeLabel;
 	[SerializeField] UILabel scoreLabel;
