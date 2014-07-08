@@ -28,10 +28,6 @@ public class TriPeaksGame : MonoBehaviour
 	[SerializeField] int costForAddExtraCards;
 	[SerializeField] int costForAddExtraTime;
 
-	[SerializeField] Deck deck;
-	[SerializeField] Board board;
-	[SerializeField] Waste waste;
-
 	public bool paused = false;
 	public bool endGame = false;
 
@@ -43,6 +39,10 @@ public class TriPeaksGame : MonoBehaviour
 	public bool addExtraCards = false;
 	public bool addExtraTime = false;
 #endif
+
+	Deck deck;
+	Board board;
+	Waste waste;
 
 	int score = 0;
 	int round = 1;
@@ -69,6 +69,10 @@ public class TriPeaksGame : MonoBehaviour
 
 	void Awake()
 	{
+		deck = GetComponentInChildren<Deck>();
+		board = GetComponentInChildren<Board>();
+		waste = GetComponentInChildren<Waste>();
+
 		timeRemaining = timePerRound;
 	}
 
