@@ -12,6 +12,12 @@ public class SolitaireGame : MonoBehaviour
 
 	#endregion
 
+	[SerializeField] Board.Shape boardShape;
+	[SerializeField] int numPeaks, peakHeight;
+	[SerializeField] int numColumns, columnHeight;
+
+	public bool arrangeBoard;
+
 	[SerializeField] float timePerRound;
 	[SerializeField] int pointsPerCardTakenFromBoard;
 	[SerializeField] int pointsPerCardRemainingInDeck;
@@ -70,8 +76,11 @@ public class SolitaireGame : MonoBehaviour
 	void Awake()
 	{
 		deck = GetComponentInChildren<Deck>();
+		if (deck == null) deck = NGUITools.AddChild<Deck>(gameObject);
 		board = GetComponentInChildren<Board>();
+		if (board == null) board = NGUITools.AddChild<Board>(gameObject);
 		waste = GetComponentInChildren<Waste>();
+		if (waste == null) waste = NGUITools.AddChild<Waste>(gameObject);
 
 		timeRemaining = timePerRound;
 	}
@@ -104,6 +113,12 @@ public class SolitaireGame : MonoBehaviour
 		}
 
 #if UNITY_EDITOR
+		if (arrangeBoard)
+		{
+			arrangeBoard = false;
+			ArrangeBoard();
+		}
+
 		if (restartGame)
 		{
 			restartGame = false;
@@ -212,6 +227,18 @@ public class SolitaireGame : MonoBehaviour
 				
 				board[i].Card.Revealed = reveal;
 			}
+		}
+	}
+
+	void ArrangeBoard()
+	{
+		if (boardShape == Board.Shape.Peaks)
+		{
+			board.ArrangeSlotsAsPeaks(numPeaks, peakHeight);
+		}
+		else if (boardShape == Board.Shape.Columns)
+		{
+			board.ArrangeSlotsAsColumns(numColumns, columnHeight);
 		}
 	}
 	

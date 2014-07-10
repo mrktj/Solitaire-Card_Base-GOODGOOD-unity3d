@@ -3,6 +3,12 @@
 [ExecuteInEditMode]
 public class Board : MonoBehaviour
 {
+	public enum Shape
+	{
+		Peaks,
+		Columns
+	}
+
 #if UNITY_EDITOR
 	public bool refreshSlots = false;
 #endif
@@ -72,6 +78,86 @@ public class Board : MonoBehaviour
 		}
 	}
 #endif
+
+	public void ArrangeSlotsAsPeaks(int numPeaks, int peakHeight)
+	{
+		foreach (Slot slot in slots) NGUITools.Destroy(slot.gameObject);
+
+		Vector2 spacing = new Vector2(90, 50);
+		Vector2 bounds = new Vector2((float)((peakHeight - 1) * numPeaks) * 0.5f * spacing.x, (float)(peakHeight - 1) * 0.5f * spacing.y);
+
+		int numSlotsInBottomRow = (peakHeight - 1) * numPeaks + 1;
+		Slot[] slotsInBottomRow = new Slot[numSlotsInBottomRow];
+		for (int i = 0; i < numSlotsInBottomRow; i++)
+		{
+			slotsInBottomRow[i] = NGUITools.AddChild<Slot>(gameObject);
+			slotsInBottomRow[i].transform.localPosition = new Vector3(-bounds.x + i * spacing.x, -bounds.y, 0);
+		}
+
+		BetterList<BetterList<Slot>> slotsByPeak = new BetterList<BetterList<Slot>>();
+		for (int i = 0; i < numPeaks; i++)
+		{
+			slotsByPeak.Add(new BetterList<Slot>());
+			for (int j = 0; j < peakHeight; j++)
+			{
+				slotsByPeak[i].Add(slotsInBottomRow[i * (peakHeight - 1) + j]);
+			}
+		}
+
+		foreach (BetterList<Slot> peakSlots in slotsByPeak)
+		{
+			for (int rowSize = peakHeight - 1; rowSize > 0; rowSize--)
+			{
+				for (int i = 0; i < rowSize; i++)
+				{
+					Slot slot = NGUITools.AddChild<Slot>(gameObject);
+					Slot slotBelow = peakSlots[peakSlots.size - rowSize - 1];
+					slot.transform.localPosition = new Vector3(slotBelow.transform.localPosition.x + spacing.x * 0.5f,
+					                                           slotBelow.transform.localPosition.y + spacing.y,
+					                                           slotBelow.transform.localPosition.z + 0.1f);
+					peakSlots.Add(slot);
+				}
+			}
+		}
+
+		InitializeSlots();
+		RefreshSlots();
+	}
+
+	public void ArrangeSlotsAsColumns(int numColumns, int columnHeight)
+	{
+		foreach (Slot slot in slots) NGUITools.Destroy(slot.gameObject);
+
+		Vector2 spacing = new Vector2(90, 50);
+		Vector2 bounds = new Vector2((float)(numColumns - 1) * 0.5f * spacing.x, (float)(columnHeight - 1) * 0.5f * spacing.y);
+
+		BetterList<BetterList<Slot>> slotsByColumn = new BetterList<BetterList<Slot>>();
+
+		for (int i = 0; i < numColumns; i++)
+		{
+			slotsByColumn.Add(new BetterList<Slot>());
+
+			Slot slot = NGUITools.AddChild<Slot>(gameObject);
+			slot.transform.localPosition = new Vector3(-bounds.x + i * spacing.x, -bounds.y, 0);
+			slotsByColumn[i].Add(slot);
+		}
+
+		for (int i = 0; i < numColumns; i++)
+		{
+			for (int j = 1; j < columnHeight; j++)
+			{
+				Slot slot = NGUITools.AddChild<Slot>(gameObject);
+				Slot slotBelow = slotsByColumn[i][j - 1];
+				slot.transform.localPosition = new Vector3(slotBelow.transform.localPosition.x,
+				                                           slotBelow.transform.localPosition.y + spacing.y,
+				                                           slotBelow.transform.localPosition.z + 0.1f);
+				slotsByColumn[i].Add(slot);
+			}
+		}
+		
+		InitializeSlots();
+		RefreshSlots();
+	}
 
 	public Slot this[int index]
 	{
