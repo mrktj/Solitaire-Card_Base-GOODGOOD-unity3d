@@ -9,34 +9,10 @@ public class Board : MonoBehaviour
 		Columns
 	}
 
-#if UNITY_EDITOR
-	public bool refreshSlots = false;
-#endif
-
-	Slot[] slots;
-
-	void Awake()
-	{
-		InitializeSlots();
-
-#if UNITY_EDITOR
-		RefreshSlots();
-#endif
-	}
-
-#if UNITY_EDITOR
-	void Update()
-	{
-		if (refreshSlots)
-		{
-			refreshSlots = false;
-			InitializeSlots();
-			RefreshSlots();
-		}
-	}
-#endif
-
-	void InitializeSlots()
+	Slot[] slots = new Slot[0];
+	Vector2 cardSpacing = Vector2.zero, boardBounds = Vector2.zero;
+	
+	void RefreshSlots()
 	{
 		slots = GetComponentsInChildren<Slot>();
 		System.Array.Sort<Slot>(slots, delegate(Slot a, Slot b){
@@ -44,11 +20,13 @@ public class Board : MonoBehaviour
 			int yDiff = Mathf.RoundToInt(b.transform.localPosition.y - a.transform.localPosition.y); if (yDiff != 0) return yDiff;
 			int xDiff = Mathf.RoundToInt(a.transform.localPosition.x - b.transform.localPosition.x); return xDiff;
 		});
-	}
 
-#if UNITY_EDITOR
-	void RefreshSlots()
-	{
+		foreach (Slot slot in slots)
+		{
+			BoxCollider slotCollider = slot.gameObject.AddComponent<BoxCollider>();
+			slotCollider.size = NGUITools.FindActive<Deck>()[0].CardBack.bounds.size;
+		}
+
 		foreach (Slot slot in slots)
 		{
 			BoxCollider slotCollider = slot.collider as BoxCollider;
@@ -76,22 +54,28 @@ public class Board : MonoBehaviour
 				}
 			}
 		}
+
+		foreach (Slot slot in slots)
+		{
+			BoxCollider slotCollider = slot.collider as BoxCollider;
+			slotCollider.enabled = false;
+		}
 	}
-#endif
 
 	public void ArrangeSlotsAsPeaks(int numPeaks, int peakHeight)
 	{
+		slots = GetComponentsInChildren<Slot>();
 		foreach (Slot slot in slots) NGUITools.Destroy(slot.gameObject);
 
-		Vector2 spacing = new Vector2(90, 50);
-		Vector2 bounds = new Vector2((float)((peakHeight - 1) * numPeaks) * 0.5f * spacing.x, (float)(peakHeight - 1) * 0.5f * spacing.y);
+		cardSpacing = new Vector2(90, 80);
+		boardBounds = new Vector2((float)((peakHeight - 1) * numPeaks) * 0.5f * cardSpacing.x, (float)(peakHeight - 1) * 0.5f * cardSpacing.y);
 
 		int numSlotsInBottomRow = (peakHeight - 1) * numPeaks + 1;
 		Slot[] slotsInBottomRow = new Slot[numSlotsInBottomRow];
 		for (int i = 0; i < numSlotsInBottomRow; i++)
 		{
-			slotsInBottomRow[i] = NGUITools.AddChild<Slot>(gameObject);
-			slotsInBottomRow[i].transform.localPosition = new Vector3(-bounds.x + i * spacing.x, -bounds.y, 0);
+			slotsInBottomRow[i] = Slot.Create(gameObject);
+			slotsInBottomRow[i].transform.localPosition = new Vector3(-boardBounds.x + i * cardSpacing.x, -boardBounds.y, 0);
 		}
 
 		BetterList<BetterList<Slot>> slotsByPeak = new BetterList<BetterList<Slot>>();
@@ -110,26 +94,26 @@ public class Board : MonoBehaviour
 			{
 				for (int i = 0; i < rowSize; i++)
 				{
-					Slot slot = NGUITools.AddChild<Slot>(gameObject);
+					Slot slot = Slot.Create(gameObject);
 					Slot slotBelow = peakSlots[peakSlots.size - rowSize - 1];
-					slot.transform.localPosition = new Vector3(slotBelow.transform.localPosition.x + spacing.x * 0.5f,
-					                                           slotBelow.transform.localPosition.y + spacing.y,
+					slot.transform.localPosition = new Vector3(slotBelow.transform.localPosition.x + cardSpacing.x * 0.5f,
+					                                           slotBelow.transform.localPosition.y + cardSpacing.y,
 					                                           slotBelow.transform.localPosition.z + 0.1f);
 					peakSlots.Add(slot);
 				}
 			}
 		}
 
-		InitializeSlots();
 		RefreshSlots();
 	}
 
 	public void ArrangeSlotsAsColumns(int numColumns, int columnHeight)
 	{
+		slots = GetComponentsInChildren<Slot>();
 		foreach (Slot slot in slots) NGUITools.Destroy(slot.gameObject);
 
-		Vector2 spacing = new Vector2(90, 50);
-		Vector2 bounds = new Vector2((float)(numColumns - 1) * 0.5f * spacing.x, (float)(columnHeight - 1) * 0.5f * spacing.y);
+		cardSpacing = new Vector2(90, 80);
+		boardBounds = new Vector2((float)(numColumns - 1) * 0.5f * cardSpacing.x, (float)(columnHeight - 1) * 0.5f * cardSpacing.y);
 
 		BetterList<BetterList<Slot>> slotsByColumn = new BetterList<BetterList<Slot>>();
 
@@ -137,8 +121,8 @@ public class Board : MonoBehaviour
 		{
 			slotsByColumn.Add(new BetterList<Slot>());
 
-			Slot slot = NGUITools.AddChild<Slot>(gameObject);
-			slot.transform.localPosition = new Vector3(-bounds.x + i * spacing.x, -bounds.y, 0);
+			Slot slot = Slot.Create(gameObject);
+			slot.transform.localPosition = new Vector3(-boardBounds.x + i * cardSpacing.x, -boardBounds.y, 0);
 			slotsByColumn[i].Add(slot);
 		}
 
@@ -146,16 +130,15 @@ public class Board : MonoBehaviour
 		{
 			for (int j = 1; j < columnHeight; j++)
 			{
-				Slot slot = NGUITools.AddChild<Slot>(gameObject);
+				Slot slot = Slot.Create(gameObject);
 				Slot slotBelow = slotsByColumn[i][j - 1];
 				slot.transform.localPosition = new Vector3(slotBelow.transform.localPosition.x,
-				                                           slotBelow.transform.localPosition.y + spacing.y,
+				                                           slotBelow.transform.localPosition.y + cardSpacing.y,
 				                                           slotBelow.transform.localPosition.z + 0.1f);
 				slotsByColumn[i].Add(slot);
 			}
 		}
-		
-		InitializeSlots();
+
 		RefreshSlots();
 	}
 
@@ -172,6 +155,14 @@ public class Board : MonoBehaviour
 		get
 		{
 			return slots.Length;
+		}
+	}
+
+	public Vector2 Bounds
+	{
+		get
+		{
+			return boardBounds + cardSpacing * 0.5f;
 		}
 	}
 }

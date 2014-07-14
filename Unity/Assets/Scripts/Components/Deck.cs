@@ -1,39 +1,22 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 
 [ExecuteInEditMode]
 public class Deck : MonoBehaviour
 {
 	[SerializeField] GameObject cardPrefab;
-
-	public bool generateStandardCards = false;
-	public bool clearAllCards = false;
 	
-	List<Card> cards = new List<Card>();
+	BetterList<Card> cards = new BetterList<Card>();
 
-	void Awake()
+	public void GenerateDeck(int size)
 	{
-#if UNITY_EDITOR
-		if (Application.isPlaying)
-#endif
-		{
-			Initialize();
-		}
-	}
+		ClearAllCards();
 
-	void Update()
-	{
-		if (generateStandardCards)
+		for (int i = 0; i < size; i++)
 		{
-			generateStandardCards = false;
 			GenerateStandardCards();
 		}
 
-		if (clearAllCards)
-		{
-			clearAllCards = false;
-			ClearAllCards();
-		}
+		RefreshDeck();
 	}
 
 	void GenerateStandardCards()
@@ -58,8 +41,10 @@ public class Deck : MonoBehaviour
 		}
 	}
 
-	void Initialize()
+	void RefreshDeck()
 	{
+		cards.Clear();
+
 		foreach (Card card in GetComponentsInChildren<Card>())
 		{
 			cards.Add(card);
@@ -68,7 +53,7 @@ public class Deck : MonoBehaviour
 
 	public void Shuffle()
 	{
-		for (int i = 0, iMax = cards.Count; i < iMax; i++)
+		for (int i = 0, iMax = cards.size; i < iMax; i++)
 		{
 			int randomIndex = Random.Range(0, iMax);
 			Card randomCard = cards[randomIndex];
@@ -94,7 +79,7 @@ public class Deck : MonoBehaviour
 
 	void SetAllCardsDepth()
 	{
-		for (int i = 0, iMax = cards.Count; i < iMax; i++)
+		for (int i = 0, iMax = cards.size; i < iMax; i++)
 		{
 			SetCardDepth(cards[i], i);
 		}
@@ -112,7 +97,7 @@ public class Deck : MonoBehaviour
 	{
 		get
 		{
-			return cards.Count;
+			return cards.size;
 		}
 	}
 
@@ -132,7 +117,6 @@ public class Deck : MonoBehaviour
 		SetAllCardsDepth();
 	}
 
-#if UNITY_EDITOR
 	public Sprite CardBack
 	{
 		get
@@ -142,5 +126,4 @@ public class Deck : MonoBehaviour
 			return cardPrefab.GetComponent<Card>().CardBack;
 		}
 	}
-#endif
 }

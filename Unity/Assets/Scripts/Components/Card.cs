@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public enum CardRank
 {
@@ -227,8 +226,7 @@ public class Card : MonoBehaviour
 			isGeneratedCard = value;
 		}
 	}
-
-#if UNITY_EDITOR
+	
 	public Sprite CardBack
 	{
 		get
@@ -236,5 +234,4 @@ public class Card : MonoBehaviour
 			return back;
 		}
 	}
-#endif
 }

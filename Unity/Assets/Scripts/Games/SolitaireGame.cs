@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
 [ExecuteInEditMode]
 public class SolitaireGame : MonoBehaviour
@@ -13,39 +12,72 @@ public class SolitaireGame : MonoBehaviour
 	#endregion
 
 	[SerializeField] Board.Shape boardShape;
-	[SerializeField] int numPeaks, peakHeight;
-	[SerializeField] int numColumns, columnHeight;
+	[SerializeField] int numPeaks = 1, peakHeight = 1;
+	[SerializeField] int numColumns = 1, columnHeight = 1;
 
+#if UNITY_EDITOR
 	public bool arrangeBoard;
+#endif
+
+	[SerializeField] int numDecks = 1;
+
+#if UNITY_EDITOR
+	public bool generateDeck;
+#endif
 
 	[SerializeField] float timePerRound;
+
 	[SerializeField] int pointsPerCardTakenFromBoard;
 	[SerializeField] int pointsPerCardRemainingInDeck;
 	[SerializeField] int pointsPerSecondsRemaining;
 	[SerializeField] int coinsPerCardTakenFromBoard;
 	[SerializeField] int coinsPerCardRemainingInDeck;
 	[SerializeField] int coinsPerSecondsRemaining;
+
 	[SerializeField] int cardsForExtraLife;
-	[SerializeField] int extraCardsPowerup;
-	[SerializeField] float extraTimePowerup;
-	[SerializeField] int costForUndoLastMove;
-	[SerializeField] int costForShuffleBoard;
-	[SerializeField] int costForGenerateWildCard;
-	[SerializeField] int costForAddExtraCards;
-	[SerializeField] int costForAddExtraTime;
 
 	public bool paused = false;
 	public bool endGame = false;
 
 #if UNITY_EDITOR
 	public bool restartGame = false;
+#endif
+	
+	[SerializeField] int costForUndoLastMove;
+
+#if UNITY_EDITOR
 	public bool undoLastMove = false;
+#endif
+	
+	[SerializeField] int costForShuffleBoard;
+
+#if UNITY_EDITOR
 	public bool shuffleBoard = false;
+#endif
+	
+	[SerializeField] int costForGenerateWildCard;
+
+#if UNITY_EDITOR
 	public bool generateWildCard = false;
+#endif
+	
+	[SerializeField] int extraCardsPowerup;
+	[SerializeField] int costForAddExtraCards;
+
+#if UNITY_EDITOR
 	public bool addExtraCards = false;
+#endif
+	
+	[SerializeField] float extraTimePowerup;
+	[SerializeField] int costForAddExtraTime;
+
+#if UNITY_EDITOR
 	public bool addExtraTime = false;
 #endif
 
+	UIRoot root;
+	new Camera camera;
+	UI2DSprite background;
 	Deck deck;
 	Board board;
 	Waste waste;
@@ -69,20 +101,18 @@ public class SolitaireGame : MonoBehaviour
 		public Slot slot;
 	}
 
-	List<Action> undoHistory = new List<Action>();
+	BetterList<Action> undoHistory = new BetterList<Action>();
 
 	const float ANIMATION_STAGGER_DURATION = 0.1f;
 
 	void Awake()
 	{
+		root = GetComponent<UIRoot>();
+		camera = GetComponentInChildren<Camera>();
+		background = GetComponentInChildren<UI2DSprite>();
 		deck = GetComponentInChildren<Deck>();
-		if (deck == null) deck = NGUITools.AddChild<Deck>(gameObject);
 		board = GetComponentInChildren<Board>();
-		if (board == null) board = NGUITools.AddChild<Board>(gameObject);
 		waste = GetComponentInChildren<Waste>();
-		if (waste == null) waste = NGUITools.AddChild<Waste>(gameObject);
-
-		timeRemaining = timePerRound;
 	}
 
 	void Start()
@@ -91,6 +121,9 @@ public class SolitaireGame : MonoBehaviour
 		if (Application.isPlaying)
 #endif
 		{
+			timeRemaining = timePerRound;
+			GenerateDeck();
+			ArrangeBoard();
 			DealBoard();
 		}
 	}
@@ -119,6 +152,12 @@ public class SolitaireGame : MonoBehaviour
 			ArrangeBoard();
 		}
 
+		if (generateDeck)
+		{
+			generateDeck = false;
+			GenerateDeck();
+		}
+		
 		if (restartGame)
 		{
 			restartGame = false;
@@ -156,6 +195,35 @@ public class SolitaireGame : MonoBehaviour
 		}
 #endif
 	}
+
+	public void LoadGame(Board.Shape boardShape, int numPeaks, int peakHeight, int numColumns, int columnHeight, int numDecks, int roundTime)
+	{
+		this.boardShape = boardShape;
+		this.numPeaks = numPeaks;
+		this.peakHeight = peakHeight;
+		this.numColumns = numColumns;
+		this.columnHeight = columnHeight;
+		this.numDecks = numDecks;
+		this.timePerRound = roundTime;
+
+#if UNITY_EDITOR
+		if (!Application.isPlaying)
+		{
+			GenerateDeck();
+			ArrangeBoard();
+		}
+#endif
+	}
+
+#if UNITY_EDITOR
+	public int NumSlots
+	{
+		get
+		{
+			return board.Size;
+		}
+	}
+#endif
 
 	void UpdateGame()
 	{
@@ -230,6 +298,11 @@ public class SolitaireGame : MonoBehaviour
 		}
 	}
 
+	void GenerateDeck()
+	{
+		deck.GenerateDeck(numDecks);
+	}
+
 	void ArrangeBoard()
 	{
 		if (boardShape == Board.Shape.Peaks)
@@ -240,6 +313,11 @@ public class SolitaireGame : MonoBehaviour
 		{
 			board.ArrangeSlotsAsColumns(numColumns, columnHeight);
 		}
+
+		Vector2 screenBounds = new Vector2((float)root.activeHeight / (float)Screen.height * (float)Screen.width, root.activeHeight) * 0.5f;
+		float xZoom = board.Bounds.x / screenBounds.x, yZoom = board.Bounds.y / screenBounds.y;
+		camera.orthographicSize = Mathf.Max(Mathf.Max(xZoom, yZoom), 1f);
+		background.transform.parent.localScale = new Vector3(camera.orthographicSize, camera.orthographicSize, 1f);
 	}
 	
 	public bool Paused
@@ -348,8 +426,6 @@ public class SolitaireGame : MonoBehaviour
 				ReturnCardFromWaste();
 			}
 		}
-		
-		DealBoard();
 
 		if (successfulRound)
 		{
@@ -365,10 +441,14 @@ public class SolitaireGame : MonoBehaviour
 			round = 1;
 		}
 
-		timeRemaining = timePerRound;
 		undoHistory.Clear();
 		paused = false;
 		successfulRound = false;
+
+		timeRemaining = timePerRound;
+		GenerateDeck();
+		ArrangeBoard();
+		DealBoard();
 	}
 	
 	void AddToUndoHistory(Action.Move move, Slot slot = null)
@@ -385,7 +465,7 @@ public class SolitaireGame : MonoBehaviour
 		{
 			if (paused) return false;
 
-			if (undoHistory.Count == 0) return false;
+			if (undoHistory.size == 0) return false;
 
 			return true;
 		}
@@ -409,8 +489,8 @@ public class SolitaireGame : MonoBehaviour
 			GameObject.Destroy(waste.TakeTopCard().gameObject);
 		}
 
-		Action action = undoHistory[undoHistory.Count - 1];
-		undoHistory.RemoveAt(undoHistory.Count - 1);
+		Action action = undoHistory[undoHistory.size - 1];
+		undoHistory.RemoveAt(undoHistory.size - 1);
 
 		if (action.move == Action.Move.RevealNextCard)
 		{
@@ -448,7 +528,7 @@ public class SolitaireGame : MonoBehaviour
 	{
 		paused = true;
 
-		List<Slot> untouchedSlots = new List<Slot>();
+		BetterList<Slot> untouchedSlots = new BetterList<Slot>();
 		
 		for (int i = board.Size - 1; i >= 0; i--)
 		{
@@ -462,7 +542,7 @@ public class SolitaireGame : MonoBehaviour
 		
 		deck.Shuffle();
 		
-		for (int i = untouchedSlots.Count - 1; i >= 0; i--)
+		for (int i = untouchedSlots.size - 1; i >= 0; i--)
 		{
 			DealCardToSlot(untouchedSlots[i]);
 			yield return new WaitForSeconds(ANIMATION_STAGGER_DURATION);

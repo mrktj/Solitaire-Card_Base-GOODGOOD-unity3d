@@ -1,17 +1,24 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 
 [ExecuteInEditMode]
 public class Slot : MonoBehaviour
 {
-	[SerializeField] List<Slot> overlappingSlots = new List<Slot>();
+	[SerializeField] BetterList<Slot> overlappingSlots = new BetterList<Slot>();
 
 	Card card = null;
 	
+	public static Slot Create(GameObject parent)
+	{
+		Slot slot = NGUITools.AddChild<Slot>(parent);
+		return slot;
+	}
+
+#if UNITY_EDITOR
 	void Awake()
 	{
 		CardHelper.TemporaryEditorSprite(gameObject);
 	}
+#endif
 
 	public void PlaceCard(Card card)
 	{
@@ -27,7 +34,7 @@ public class Slot : MonoBehaviour
 		return card;
 	}
 
-	public List<Slot> OverlappingSlots
+	public BetterList<Slot> OverlappingSlots
 	{
 		get
 		{
