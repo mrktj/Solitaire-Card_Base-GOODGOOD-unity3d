@@ -25,8 +25,6 @@ public class SolitaireGame : MonoBehaviour
 	public bool generateDeck;
 #endif
 
-	[SerializeField] float timePerRound;
-
 	[SerializeField] int pointsPerCardTakenFromBoard;
 	[SerializeField] int pointsPerCardRemainingInDeck;
 	[SerializeField] int pointsPerSecondsRemaining;
@@ -84,6 +82,7 @@ public class SolitaireGame : MonoBehaviour
 
 	int score = 0;
 	int round = 1;
+	float roundTime = 60;
 	int lives = 0;
 	float timeRemaining = 0;
 	int coinsCollected = 0;
@@ -121,7 +120,7 @@ public class SolitaireGame : MonoBehaviour
 		if (Application.isPlaying)
 #endif
 		{
-			timeRemaining = timePerRound;
+			timeRemaining = roundTime;
 			GenerateDeck();
 			ArrangeBoard();
 			DealBoard();
@@ -204,7 +203,7 @@ public class SolitaireGame : MonoBehaviour
 		this.numColumns = numColumns;
 		this.columnHeight = columnHeight;
 		this.numDecks = numDecks;
-		this.timePerRound = roundTime;
+		this.roundTime = roundTime;
 
 #if UNITY_EDITOR
 		if (!Application.isPlaying)
@@ -339,6 +338,14 @@ public class SolitaireGame : MonoBehaviour
 			return round;
 		}
 	}
+	
+	public float RoundTime
+	{
+		get
+		{
+			return roundTime;
+		}
+	}
 
 	public float TimeRemaining
 	{
@@ -445,7 +452,7 @@ public class SolitaireGame : MonoBehaviour
 		paused = false;
 		successfulRound = false;
 
-		timeRemaining = timePerRound;
+		timeRemaining = roundTime;
 		GenerateDeck();
 		ArrangeBoard();
 		DealBoard();
