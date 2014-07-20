@@ -3,7 +3,7 @@ using System.Collections;
 
 public class ResultsPanel : MonoBehaviour
 {
-	[System.NonSerialized] public SolitaireGame game;
+	[System.NonSerialized] public SolitaireLevelPlayer game;
 
 	[SerializeField] GameObject winScreen;
 	[SerializeField] UILabel winRoundScoreLabel;

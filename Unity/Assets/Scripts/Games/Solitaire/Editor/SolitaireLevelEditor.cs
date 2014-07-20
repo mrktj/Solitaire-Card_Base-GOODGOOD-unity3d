@@ -19,7 +19,7 @@ public class SolitaireLevelEditor : EditorWindow
 
 	void OnGUI()
 	{
-		SolitaireGame game = GameObject.FindObjectOfType<SolitaireGame>();
+		SolitaireLevelPlayer game = GameObject.FindObjectOfType<SolitaireLevelPlayer>();
 
 		if (game == null)
 		{
@@ -95,7 +95,7 @@ public class SolitaireLevelEditor : EditorWindow
 
 	void UpdateGame()
 	{
-		SolitaireGame game = GameObject.FindObjectOfType<SolitaireGame>();
+		SolitaireLevelPlayer game = GameObject.FindObjectOfType<SolitaireLevelPlayer>();
 		game.LoadGame(boardShape, numPeaks, peakHeight, numColumns, columnHeight, numDecks, roundTime);
 	}
 }

@@ -3,7 +3,7 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class HUDController : MonoBehaviour
 {
-	[SerializeField] SolitaireGame game;
+	[SerializeField] SolitaireLevelPlayer game;
 	[SerializeField] UILabel roundLabel;
 	[SerializeField] UILabel timeLabel;
 	[SerializeField] UILabel scoreLabel;
