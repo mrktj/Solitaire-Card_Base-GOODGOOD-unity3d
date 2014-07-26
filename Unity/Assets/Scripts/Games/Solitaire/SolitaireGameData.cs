@@ -1,14 +1,14 @@
 ﻿using UnityEngine;
 
-public class SolitaireLevelList : MonoBehaviour
+public class SolitaireGameData : MonoBehaviour
 {
-	static SolitaireLevelList mData = null;
+	static SolitaireGameData mData = null;
 
-	public static SolitaireLevelList Data
+	public static SolitaireGameData Data
 	{
 		get
 		{
-			if (mData == null) mData = (Resources.Load("SolitaireLevelList") as GameObject).GetComponent<SolitaireLevelList>();
+			if (mData == null) mData = (Resources.Load("SolitaireGameData") as GameObject).GetComponent<SolitaireGameData>();
 			return mData;
 		}
 	}

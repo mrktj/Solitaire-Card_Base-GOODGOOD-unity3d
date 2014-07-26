@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 
 [ExecuteInEditMode]
-public class SolitaireLevelPlayer : MonoBehaviour
+public class SolitaireGamePlayer : MonoBehaviour
 {
 	#region Event Handlers
 

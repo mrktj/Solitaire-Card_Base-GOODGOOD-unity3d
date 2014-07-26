@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 
 public class SolitaireLevelEditor : EditorWindow
@@ -26,7 +26,7 @@ public class SolitaireLevelEditor : EditorWindow
 
 	void SaveLevelList()
 	{
-		EditorUtility.SetDirty(SolitaireLevelList.Data);
+		EditorUtility.SetDirty(SolitaireGameData.Data);
 		EditorApplication.SaveAssets();
 	}
 	
@@ -34,7 +34,7 @@ public class SolitaireLevelEditor : EditorWindow
 	{
 		SaveLevelList();
 
-		SolitaireLevelPlayer game = GameObject.FindObjectOfType<SolitaireLevelPlayer>();
+		SolitaireGamePlayer game = GameObject.FindObjectOfType<SolitaireGamePlayer>();
 		game.LoadGame(CurrentLevel);
 		game.editorLevel = CurrentLevel;
 	}
@@ -50,7 +50,7 @@ public class SolitaireLevelEditor : EditorWindow
 
 	void OnGUI()
 	{
-		SolitaireLevelPlayer game = GameObject.FindObjectOfType<SolitaireLevelPlayer>();
+		SolitaireGamePlayer game = GameObject.FindObjectOfType<SolitaireGamePlayer>();
 
 		if (game == null)
 		{
@@ -69,9 +69,9 @@ public class SolitaireLevelEditor : EditorWindow
 
 		int runningLevel = 0;
 
-		for (int i = 0; i < SolitaireLevelList.Data.master.Length; i++)
+		for (int i = 0; i < SolitaireGameData.Data.master.Length; i++)
 		{
-			SolitaireLevelData levelData = SolitaireLevelList.Data.master[i];
+			SolitaireLevelData levelData = SolitaireGameData.Data.master[i];
 
 			if (runningLevel != levelData.level)
 			{
@@ -123,7 +123,7 @@ public class SolitaireLevelEditor : EditorWindow
 			{
 				if (GUILayout.Button("Confirm", GUILayout.Width(80)))
 				{
-					SolitaireLevelList.Data.DeleteLevelDataAt(i, ref SolitaireLevelList.Data.master);
+					SolitaireGameData.Data.DeleteLevelDataAt(i, ref SolitaireGameData.Data.master);
 					SaveLevelList();
 					CurrentLevel = null;
 					confirmDelete = -1;
@@ -133,7 +133,7 @@ public class SolitaireLevelEditor : EditorWindow
 			EditorGUILayout.EndHorizontal();
 		}
 
-		if (SolitaireLevelList.Data.master.Length > 0) NGUIEditorTools.EndContents();
+		if (SolitaireGameData.Data.master.Length > 0) NGUIEditorTools.EndContents();
 
 		EditorGUILayout.EndScrollView();
 		
@@ -143,9 +143,9 @@ public class SolitaireLevelEditor : EditorWindow
 		if (GUILayout.Button("Create New Level"))
 		{
 			SolitaireLevelData newLevel = new SolitaireLevelData();
-			newLevel.level = SolitaireLevelList.Data.master.Length == 0 ? 1 : SolitaireLevelList.Data.master[SolitaireLevelList.Data.master.Length - 1].level + 1;
+			newLevel.level = SolitaireGameData.Data.master.Length == 0 ? 1 : SolitaireGameData.Data.master[SolitaireGameData.Data.master.Length - 1].level + 1;
 			CurrentLevel = newLevel;
-			SolitaireLevelList.Data.AddLevelData(CurrentLevel, ref SolitaireLevelList.Data.master);
+			SolitaireGameData.Data.AddLevelData(CurrentLevel, ref SolitaireGameData.Data.master);
 			SaveLevelList();
 		}
 
@@ -157,7 +157,7 @@ public class SolitaireLevelEditor : EditorWindow
 				newRound.level = CurrentLevel.level;
 				newRound.round = CurrentLevel.round + 1;
 				CurrentLevel = newRound;
-				SolitaireLevelList.Data.AddLevelData(CurrentLevel, ref SolitaireLevelList.Data.master);
+				SolitaireGameData.Data.AddLevelData(CurrentLevel, ref SolitaireGameData.Data.master);
 				SaveLevelList();
 			}
 		}
@@ -185,7 +185,7 @@ public class SolitaireLevelEditor : EditorWindow
 		if (level != CurrentLevel.level)
 		{
 			CurrentLevel.level = level;
-			SolitaireLevelList.Data.Sort(ref SolitaireLevelList.Data.master);
+			SolitaireGameData.Data.Sort(ref SolitaireGameData.Data.master);
 			UpdateGame();
 		}
 
@@ -193,7 +193,7 @@ public class SolitaireLevelEditor : EditorWindow
 		if (round != CurrentLevel.round)
 		{
 			CurrentLevel.round = round;
-			SolitaireLevelList.Data.Sort(ref SolitaireLevelList.Data.master);
+			SolitaireGameData.Data.Sort(ref SolitaireGameData.Data.master);
 			UpdateGame();
 		}
 

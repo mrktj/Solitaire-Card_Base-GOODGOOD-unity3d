@@ -14,7 +14,7 @@ GameObject:
   - 114: {fileID: 11400168}
   - 114: {fileID: 11400170}
   m_Layer: 8
-  m_Name: SolitaireLevelPlayer
+  m_Name: SolitaireGamePlayer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10532,13 +10532,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ae7f99a893ab48a883147041c569735, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boardShape: 0
-  numPeaks: 3
-  peakHeight: 4
-  numColumns: 8
-  columnHeight: 4
+  editorLevel:
+    level: 1
+    round: 1
+    roundTime: 60
+    boardShape: 0
+    numPeaks: 1
+    peakHeight: 2
+    numColumns: 1
+    columnHeight: 2
+    numDecks: 1
   arrangeBoard: 0
-  numDecks: 1
   generateDeck: 0
   pointsPerCardTakenFromBoard: 10
   pointsPerCardRemainingInDeck: 20
