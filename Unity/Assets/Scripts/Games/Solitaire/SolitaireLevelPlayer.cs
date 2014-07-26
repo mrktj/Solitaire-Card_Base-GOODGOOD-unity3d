@@ -195,15 +195,16 @@ public class SolitaireLevelPlayer : MonoBehaviour
 #endif
 	}
 
-	public void LoadGame(Board.Shape boardShape, int numPeaks, int peakHeight, int numColumns, int columnHeight, int numDecks, int roundTime)
+	public void LoadGame(SolitaireLevelData levelData)
 	{
-		this.boardShape = boardShape;
-		this.numPeaks = numPeaks;
-		this.peakHeight = peakHeight;
-		this.numColumns = numColumns;
-		this.columnHeight = columnHeight;
-		this.numDecks = numDecks;
-		this.roundTime = roundTime;
+		this.boardShape = levelData.boardShape;
+		this.numPeaks = levelData.numPeaks;
+		this.peakHeight = levelData.peakHeight;
+		this.numColumns = levelData.numColumns;
+		this.columnHeight = levelData.columnHeight;
+		this.numDecks = levelData.numDecks;
+		this.round = levelData.round;
+		this.roundTime = levelData.roundTime;
 
 #if UNITY_EDITOR
 		if (!Application.isPlaying)
