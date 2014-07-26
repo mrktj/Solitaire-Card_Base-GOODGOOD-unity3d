@@ -2,6 +2,17 @@
 
 public class SolitaireLevelList : MonoBehaviour
 {
+	static SolitaireLevelList mData = null;
+
+	public static SolitaireLevelList Data
+	{
+		get
+		{
+			if (mData == null) mData = (Resources.Load("SolitaireLevelList") as GameObject).GetComponent<SolitaireLevelList>();
+			return mData;
+		}
+	}
+
 	public SolitaireLevelData[] master;
 
 	public void AddLevelData(SolitaireLevelData levelData, ref SolitaireLevelData[] levelList)

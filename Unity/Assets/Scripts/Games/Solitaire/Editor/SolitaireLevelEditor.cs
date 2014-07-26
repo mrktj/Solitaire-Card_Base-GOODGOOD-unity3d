@@ -3,30 +3,15 @@ using UnityEditor;
 
 public class SolitaireLevelEditor : EditorWindow
 {
-	SolitaireLevelList mLevelList = null;
-	SolitaireLevelData mCurrentLevelData = null;
-
-	int confirmDelete = -1;
-
-	Vector2 fullScrollPosition = Vector2.zero;
-	Vector2 levelSelectionScrollPosition = Vector2.zero;
-
 	[MenuItem("Solitaire/Level Editor")]
 	static void Initialize()
 	{
 		EditorWindow.GetWindow<SolitaireLevelEditor>("Level Editor", true);
 	}
 
-	SolitaireLevelList LevelList
-	{
-		get
-		{
-			if (mLevelList == null) mLevelList = (Resources.Load("SolitaireLevelList") as GameObject).GetComponent<SolitaireLevelList>();
-			return mLevelList;
-		}
-	}
+	SolitaireLevelData mCurrentLevelData = null;
 
-	SolitaireLevelData CurrentLevel
+	public SolitaireLevelData CurrentLevel
 	{
 		get
 		{
@@ -41,21 +26,27 @@ public class SolitaireLevelEditor : EditorWindow
 
 	void SaveLevelList()
 	{
-		EditorUtility.SetDirty(LevelList);
+		EditorUtility.SetDirty(SolitaireLevelList.Data);
 		EditorApplication.SaveAssets();
 	}
 	
 	void UpdateGame()
 	{
+		SaveLevelList();
+
 		SolitaireLevelPlayer game = GameObject.FindObjectOfType<SolitaireLevelPlayer>();
 		game.LoadGame(CurrentLevel);
-		SaveLevelList();
+		game.editorLevel = CurrentLevel;
 	}
 
 	void OnInspectorUpdate()
 	{
 		Repaint();
 	}
+	
+	int confirmDelete = -1;
+	Vector2 fullScrollPosition = Vector2.zero;
+	Vector2 levelSelectionScrollPosition = Vector2.zero;
 
 	void OnGUI()
 	{
@@ -78,9 +69,9 @@ public class SolitaireLevelEditor : EditorWindow
 
 		int runningLevel = 0;
 
-		for (int i = 0; i < LevelList.master.Length; i++)
+		for (int i = 0; i < SolitaireLevelList.Data.master.Length; i++)
 		{
-			SolitaireLevelData levelData = LevelList.master[i];
+			SolitaireLevelData levelData = SolitaireLevelList.Data.master[i];
 
 			if (runningLevel != levelData.level)
 			{
@@ -132,7 +123,7 @@ public class SolitaireLevelEditor : EditorWindow
 			{
 				if (GUILayout.Button("Confirm", GUILayout.Width(80)))
 				{
-					LevelList.DeleteLevelDataAt(i, ref LevelList.master);
+					SolitaireLevelList.Data.DeleteLevelDataAt(i, ref SolitaireLevelList.Data.master);
 					SaveLevelList();
 					CurrentLevel = null;
 					confirmDelete = -1;
@@ -142,7 +133,7 @@ public class SolitaireLevelEditor : EditorWindow
 			EditorGUILayout.EndHorizontal();
 		}
 
-		if (LevelList.master.Length > 0) NGUIEditorTools.EndContents();
+		if (SolitaireLevelList.Data.master.Length > 0) NGUIEditorTools.EndContents();
 
 		EditorGUILayout.EndScrollView();
 		
@@ -152,9 +143,9 @@ public class SolitaireLevelEditor : EditorWindow
 		if (GUILayout.Button("Create New Level"))
 		{
 			SolitaireLevelData newLevel = new SolitaireLevelData();
-			newLevel.level = LevelList.master.Length == 0 ? 1 : LevelList.master[LevelList.master.Length - 1].level + 1;
+			newLevel.level = SolitaireLevelList.Data.master.Length == 0 ? 1 : SolitaireLevelList.Data.master[SolitaireLevelList.Data.master.Length - 1].level + 1;
 			CurrentLevel = newLevel;
-			LevelList.AddLevelData(CurrentLevel, ref LevelList.master);
+			SolitaireLevelList.Data.AddLevelData(CurrentLevel, ref SolitaireLevelList.Data.master);
 			SaveLevelList();
 		}
 
@@ -166,7 +157,7 @@ public class SolitaireLevelEditor : EditorWindow
 				newRound.level = CurrentLevel.level;
 				newRound.round = CurrentLevel.round + 1;
 				CurrentLevel = newRound;
-				LevelList.AddLevelData(CurrentLevel, ref LevelList.master);
+				SolitaireLevelList.Data.AddLevelData(CurrentLevel, ref SolitaireLevelList.Data.master);
 				SaveLevelList();
 			}
 		}
@@ -194,7 +185,7 @@ public class SolitaireLevelEditor : EditorWindow
 		if (level != CurrentLevel.level)
 		{
 			CurrentLevel.level = level;
-			LevelList.Sort(ref LevelList.master);
+			SolitaireLevelList.Data.Sort(ref SolitaireLevelList.Data.master);
 			UpdateGame();
 		}
 
@@ -202,7 +193,7 @@ public class SolitaireLevelEditor : EditorWindow
 		if (round != CurrentLevel.round)
 		{
 			CurrentLevel.round = round;
-			LevelList.Sort(ref LevelList.master);
+			SolitaireLevelList.Data.Sort(ref SolitaireLevelList.Data.master);
 			UpdateGame();
 		}
 

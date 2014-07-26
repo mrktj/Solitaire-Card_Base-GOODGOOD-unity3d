@@ -11,15 +11,19 @@ public class SolitaireLevelPlayer : MonoBehaviour
 
 	#endregion
 
-	[SerializeField] Board.Shape boardShape;
-	[SerializeField] int numPeaks = 1, peakHeight = 1;
-	[SerializeField] int numColumns = 1, columnHeight = 1;
+#if UNITY_EDITOR
+	public SolitaireLevelData editorLevel = null;
+#endif
+
+	Board.Shape boardShape;
+	int numPeaks = 1, peakHeight = 1;
+	int numColumns = 1, columnHeight = 1;
 
 #if UNITY_EDITOR
 	public bool arrangeBoard;
 #endif
 
-	[SerializeField] int numDecks = 1;
+	int numDecks = 1;
 
 #if UNITY_EDITOR
 	public bool generateDeck;
@@ -117,13 +121,14 @@ public class SolitaireLevelPlayer : MonoBehaviour
 	void Start()
 	{
 #if UNITY_EDITOR
-		if (Application.isPlaying)
+		if (editorLevel != null)
+		{
+			LoadGame(editorLevel);
+		}
+		else
 #endif
 		{
-			timeRemaining = roundTime;
-			GenerateDeck();
-			ArrangeBoard();
-			DealBoard();
+			
 		}
 	}
 	
@@ -197,22 +202,31 @@ public class SolitaireLevelPlayer : MonoBehaviour
 
 	public void LoadGame(SolitaireLevelData levelData)
 	{
-		this.boardShape = levelData.boardShape;
-		this.numPeaks = levelData.numPeaks;
-		this.peakHeight = levelData.peakHeight;
-		this.numColumns = levelData.numColumns;
-		this.columnHeight = levelData.columnHeight;
-		this.numDecks = levelData.numDecks;
-		this.round = levelData.round;
-		this.roundTime = levelData.roundTime;
+		boardShape = levelData.boardShape;
+		numPeaks = levelData.numPeaks;
+		peakHeight = levelData.peakHeight;
+		numColumns = levelData.numColumns;
+		columnHeight = levelData.columnHeight;
+		numDecks = levelData.numDecks;
+		round = levelData.round;
+		roundTime = levelData.roundTime;
 
 #if UNITY_EDITOR
-		if (!Application.isPlaying)
-		{
-			GenerateDeck();
-			ArrangeBoard();
-		}
+		if (Application.isPlaying)
 #endif
+		{
+			timeRemaining = roundTime;
+		}
+
+		GenerateDeck();
+		ArrangeBoard();
+
+#if UNITY_EDITOR
+		if (Application.isPlaying)
+#endif
+		{
+			DealBoard();
+		}
 	}
 
 #if UNITY_EDITOR
