@@ -39,6 +39,24 @@ public class SolitaireLevelEditor : EditorWindow
 		}
 	}
 
+	void SaveLevelList()
+	{
+		EditorUtility.SetDirty(LevelList);
+		EditorApplication.SaveAssets();
+	}
+	
+	void UpdateGame()
+	{
+		SolitaireLevelPlayer game = GameObject.FindObjectOfType<SolitaireLevelPlayer>();
+		game.LoadGame(CurrentLevel);
+		SaveLevelList();
+	}
+
+	void OnInspectorUpdate()
+	{
+		Repaint();
+	}
+
 	void OnGUI()
 	{
 		SolitaireLevelPlayer game = GameObject.FindObjectOfType<SolitaireLevelPlayer>();
@@ -115,7 +133,7 @@ public class SolitaireLevelEditor : EditorWindow
 				if (GUILayout.Button("Confirm", GUILayout.Width(80)))
 				{
 					LevelList.DeleteLevelDataAt(i, ref LevelList.master);
-
+					SaveLevelList();
 					CurrentLevel = null;
 					confirmDelete = -1;
 				}
@@ -137,6 +155,7 @@ public class SolitaireLevelEditor : EditorWindow
 			newLevel.level = LevelList.master.Length == 0 ? 1 : LevelList.master[LevelList.master.Length - 1].level + 1;
 			CurrentLevel = newLevel;
 			LevelList.AddLevelData(CurrentLevel, ref LevelList.master);
+			SaveLevelList();
 		}
 
 		if (CurrentLevel != null)
@@ -148,6 +167,7 @@ public class SolitaireLevelEditor : EditorWindow
 				newRound.round = CurrentLevel.round + 1;
 				CurrentLevel = newRound;
 				LevelList.AddLevelData(CurrentLevel, ref LevelList.master);
+				SaveLevelList();
 			}
 		}
 		
@@ -257,11 +277,5 @@ public class SolitaireLevelEditor : EditorWindow
 
 		EditorGUILayout.EndVertical();
 		EditorGUILayout.EndScrollView();
-	}
-
-	void UpdateGame()
-	{
-		SolitaireLevelPlayer game = GameObject.FindObjectOfType<SolitaireLevelPlayer>();
-		game.LoadGame(CurrentLevel);
 	}
 }
