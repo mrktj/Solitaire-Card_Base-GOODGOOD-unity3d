@@ -35,7 +35,7 @@ public class SolitaireLevelEditor : EditorWindow
 		set
 		{
 			mCurrentLevelData = value;
-			UpdateGame();
+			if (mCurrentLevelData != null) UpdateGame();
 		}
 	}
 
@@ -74,7 +74,7 @@ public class SolitaireLevelEditor : EditorWindow
 				EditorGUILayout.BeginHorizontal();
 
 				GUIStyle levelLabel = new GUIStyle(EditorStyles.boldLabel);
-				if (CurrentLevel.level == levelData.level) levelLabel.normal.textColor = Color.green;
+				if (CurrentLevel != null && CurrentLevel.level == levelData.level) levelLabel.normal.textColor = Color.green;
 				EditorGUILayout.LabelField("Level " + levelData.level.ToString(), levelLabel, GUILayout.Width(80));
 
 				EditorGUILayout.EndHorizontal();
@@ -84,7 +84,7 @@ public class SolitaireLevelEditor : EditorWindow
 			GUILayout.Space(90);
 
 			GUIStyle roundLabel = new GUIStyle(EditorStyles.label);
-			if (CurrentLevel.level == levelData.level && CurrentLevel.round == levelData.round) roundLabel.normal.textColor = Color.green;
+			if (CurrentLevel != null && CurrentLevel.level == levelData.level && CurrentLevel.round == levelData.round) roundLabel.normal.textColor = Color.green;
 			EditorGUILayout.LabelField("Round " + levelData.round.ToString(), roundLabel, GUILayout.Width(80));
 
 			GUILayout.Space(10);
@@ -116,6 +116,7 @@ public class SolitaireLevelEditor : EditorWindow
 				{
 					LevelList.DeleteLevelDataAt(i, ref LevelList.master);
 
+					CurrentLevel = null;
 					confirmDelete = -1;
 				}
 			}
@@ -160,6 +161,7 @@ public class SolitaireLevelEditor : EditorWindow
 		if (CurrentLevel == null)
 		{
 			EditorGUILayout.EndVertical();
+			EditorGUILayout.EndScrollView();
 			return;
 		}
 
